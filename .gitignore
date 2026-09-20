@@ -5,8 +5,6 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
-
-# Virtual environments
 .venv/
 venv/
 env/
@@ -16,58 +14,106 @@ env/
 .env.*
 !.env.example
 !.env.production.example
-*.pem
-*.key
-*.crt
-credentials.json
-client_secret*.json
 
-# Databases / local state
+# Databases / local runtime
 *.db
 *.sqlite
 *.sqlite3
 
-# Logs
-*.log
-logs/
-
 # Node
 node_modules/
-frontend/node_modules/
-
-# Frontend build
 frontend/dist/
-dist/
+frontend/.vite/
+.vite/
 
-# Vite
-frontend/node_modules/.vite/
-
-# OS
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE
-.vscode/
-.idea/
-
-# Temporary backups
-*.bak
-*.backup
-*.tmp
-
-# Test artifacts
-coverage/
-htmlcov/
-
-# Runtime generated files
-uploads/
-generated/
-output/
+# Logs / runtime
+*.log
+logs/
+tmp/
 temp/
 
-# Secrets accidentally copied into project
-secrets/
-private/
-tokens/
-oauth_tokens/
+# Backups
+*.bak
+*.backup
+*_BACKUP/
+*_BACKUP
+BATCH*_BACKUP/
+BATCH*_FINAL_BACKUP/
+*BACKUP*
+*.old
+*.orig
+
+# Temporary scripts
+*_temp.ps1
+*_tmp.ps1
+temp_*.ps1
+tmp_*.ps1
+fix_*.ps1
+repair_*.ps1
+patch_*.ps1
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*.log
+.idea/
+
+# Test artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Secrets / OAuth credentials
+**/client_secret*.json
+**/*client_secret*.json
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.production.example
+
+# Python
+**/__pycache__/
+**/*.pyc
+.venv/
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# Runtime/generated data
+backend/data/
+backend/storage/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# N1MOX30 local/runtime
+.env.production
+n1mox30.db
+storage/
+backend/data/
+backend/storage/
+
+# Temporary backup artifacts
+*_BACKUP_*/
+*_backup_*/
+*BACKUP*/
+*.backup
+*.bak
+*.txt.backup
+*.stage*-backup*
+*.batch*-backup*
+
+# Local generated artifacts
+*.log
+*.tmp
+

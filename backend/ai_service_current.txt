@@ -1,0 +1,919 @@
+﻿from __future__ import annotations
+
+import re
+from typing import Any
+
+from app.core.config import settings
+from app.services.ai.provider_router import (
+    ai_provider_router,
+)
+
+
+# =================================================
+# GENERAL HELPERS
+# =================================================
+
+
+def clean_hashtag(value: str) -> str:
+    """
+    Convert text into a valid hashtag.
+    """
+
+    cleaned = re.sub(
+        r"[^A-Za-z0-9_]",
+        "",
+        value,
+    )
+
+    if not cleaned:
+        return "#N1MOX30"
+
+    return f"#{cleaned[:40]}"
+
+
+def clean_ai_response(text: str) -> str:
+    """
+    Clean AI provider output.
+
+    Removes terminal logs, ANSI escape codes, provider
+    metadata, and common encoding artifacts.
+    """
+
+    if not text:
+        return ""
+
+    text = str(text)
+
+    # Remove ANSI terminal escape sequences.
+    text = re.sub(
+        r"\x1B\[[0-?]*[ -/]*[@-~]",
+        "",
+        text,
+    )
+
+    lines: list[str] = []
+
+    for line in text.splitlines():
+
+        stripped = line.strip()
+
+        if not stripped:
+            continue
+
+        lower_line = stripped.lower()
+
+        # Ignore common OpenClaw/provider logs.
+        ignored_patterns = [
+            "[provider-transport-fetch]",
+            "[model-fetch]",
+            "[provider]",
+            "model.run via",
+            "provider:",
+            "model:",
+            "outputs:",
+            "thinking...",
+        ]
+
+        if any(
+            pattern in lower_line
+            for pattern in ignored_patterns
+        ):
+            continue
+
+        # Ignore timestamped transport logs.
+        if re.match(
+            r"^\d{2}:\d{2}:\d{2}\s+\[",
+            stripped,
+        ):
+            continue
+
+        lines.append(stripped)
+
+    cleaned = "\n".join(lines).strip()
+
+    # Replace common mojibake/encoding artifacts.
+    replacements = {
+        "Ã¢â‚¬â„¢": "'",
+        "Ã¢â‚¬Ëœ": "'",
+        "Ã¢â‚¬Å“": '"',
+        "Ã¢â‚¬Â": '"',
+        "Ã¢â‚¬â€œ": "-",
+        "Ã¢â‚¬â€": "-",
+        "Ã¢â‚¬Â¦": "...",
+        "Ã‚": "",
+        "\u00a0": " ",
+    }
+
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(
+            old,
+            new,
+        )
+
+    # Remove repeated whitespace while preserving lines.
+    cleaned_lines = []
+
+    for line in cleaned.splitlines():
+        line = re.sub(
+            r"[ \t]+",
+            " ",
+            line,
+        ).strip()
+
+        if line:
+            cleaned_lines.append(line)
+
+    return "\n".join(
+        cleaned_lines
+    ).strip()
+
+
+# =================================================
+# AI PROVIDER GENERATION
+# =================================================
+
+
+def generate_ai_text(
+    prompt: str,
+    temperature: float = 0.7,
+) -> str:
+    """
+    Generate text using the configured AI provider.
+
+    Supported modes:
+    - auto
+    - bedrock
+    - openclaw
+
+    The provider router handles failover.
+    """
+
+    result = ai_provider_router.generate(
+        prompt=prompt,
+        temperature=temperature,
+    )
+
+    text = result.get(
+        "text",
+        "",
+    )
+
+    cleaned = clean_ai_response(text)
+
+    if not cleaned:
+        raise RuntimeError(
+            "AI provider returned an empty response."
+        )
+
+    return cleaned
+
+
+# =================================================
+# DEMO CONTENT GENERATION
+# =================================================
+
+
+def generate_demo_content(
+    *,
+    platform: str,
+    topic: str,
+    content_type: str,
+    tone: str,
+    creator_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Generate deterministic fallback content when an
+    external AI provider is unavailable.
+    """
+
+    creator_context = creator_context or {}
+
+    channel_name = creator_context.get(
+        "channel_name"
+    )
+
+    creator_prefix = ""
+
+    if channel_name:
+        creator_prefix = (
+            f"This idea is prepared for "
+            f"{channel_name}. "
+        )
+
+    topic_clean = topic.strip()
+
+    title_topic = re.sub(
+        r"\s+",
+        " ",
+        topic_clean,
+    )
+
+    titles = [
+        f"The Truth About {title_topic}",
+        f"Why {title_topic} Is Getting Attention",
+        f"What You Need to Know About {title_topic}",
+        f"5 Things About {title_topic} You Should Know",
+        f"The Future of {title_topic}",
+    ]
+
+    script = (
+        f"{creator_prefix}"
+        f"Today we are exploring {topic_clean}.\n\n"
+        f"Here is the hook: most people only see the "
+        f"surface, but there is much more to understand.\n\n"
+        f"In this {content_type}, we focus on one clear "
+        f"and interesting angle so viewers immediately "
+        f"know why the topic matters.\n\n"
+        f"The key takeaway is to combine strong storytelling, "
+        f"clear pacing, and a memorable point that gives the "
+        f"audience a reason to keep watching.\n\n"
+        f"For content about {topic_clean}, use a strong opening, "
+        f"deliver useful information quickly, and finish with "
+        f"a clear takeaway.\n\n"
+        f"What do you think? Share your opinion and follow "
+        f"for more content."
+    )
+
+    caption = (
+        f"{topic_clean} is worth talking about.\n\n"
+        f"This {content_type} takes a focused and engaging "
+        f"look at the topic.\n\n"
+        f"What is your opinion? Share it in the comments."
+    )
+
+    topic_hashtag = clean_hashtag(
+        topic_clean.replace(
+            " ",
+            "",
+        )
+    )
+
+    return {
+        "platform": platform,
+        "topic": topic_clean,
+        "content_type": content_type,
+        "tone": tone,
+        "titles": titles,
+        "script": script,
+        "caption": caption,
+        "hashtags": [
+            topic_hashtag,
+            "#N1MOX30",
+            f"#{platform.capitalize()}",
+            "#ContentCreator",
+            "#AI",
+        ],
+    }
+
+
+# =================================================
+# AI CONTENT GENERATION
+# =================================================
+
+
+def generate_content(
+    *,
+    platform: str,
+    topic: str,
+    content_type: str,
+    tone: str,
+    creator_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Generate creator content using AI.
+
+    Falls back to deterministic demo content when
+    configured providers are unavailable.
+    """
+
+    creator_context = creator_context or {}
+
+    channel_name = creator_context.get(
+        "channel_name"
+    )
+
+    prompt = f"""
+You are the content intelligence engine inside N1MOX30,
+an AI-powered creator platform.
+
+Generate professional creator content.
+
+PLATFORM:
+{platform}
+
+TOPIC:
+{topic}
+
+CONTENT TYPE:
+{content_type}
+
+TONE:
+{tone}
+
+CREATOR CHANNEL:
+{channel_name or "Not connected"}
+
+IMPORTANT RULES:
+
+1. Do not ask questions.
+2. Do not introduce yourself.
+3. Do not provide generic chatbot responses.
+4. Generate actual usable creator content.
+5. Keep the response focused on the requested topic.
+6. Make titles engaging and realistic.
+7. Make the script easy to understand and perform.
+8. Do not mention that you are an AI.
+9. Do not include provider logs or metadata.
+
+Return EXACTLY this format:
+
+TITLES:
+1. Title
+2. Title
+3. Title
+4. Title
+5. Title
+
+SCRIPT:
+Full script here.
+
+CAPTION:
+Caption here.
+
+HASHTAGS:
+#tag1 #tag2 #tag3 #tag4 #tag5
+"""
+
+    try:
+
+        text = generate_ai_text(
+            prompt=prompt,
+            temperature=0.7,
+        )
+
+        titles = parse_numbered_section(
+            text=text,
+            section_name="TITLES",
+            next_sections=[
+                "SCRIPT",
+                "CAPTION",
+                "HASHTAGS",
+            ],
+        )
+
+        script = parse_text_section(
+            text=text,
+            section_name="SCRIPT",
+            next_sections=[
+                "CAPTION",
+                "HASHTAGS",
+            ],
+        )
+
+        caption = parse_text_section(
+            text=text,
+            section_name="CAPTION",
+            next_sections=[
+                "HASHTAGS",
+            ],
+        )
+
+        hashtags_text = parse_text_section(
+            text=text,
+            section_name="HASHTAGS",
+            next_sections=[],
+        )
+
+        hashtags = extract_hashtags(
+            hashtags_text
+        )
+
+        # Validate minimum useful AI output.
+        if (
+            len(titles) < 3
+            or len(script) < 30
+            or len(caption) < 10
+        ):
+            raise ValueError(
+                "AI response did not contain complete "
+                "content sections."
+            )
+
+        return {
+            "platform": platform,
+            "topic": topic,
+            "content_type": content_type,
+            "tone": tone,
+            "titles": titles[:5],
+            "script": script,
+            "caption": caption,
+            "hashtags": hashtags[:10]
+            or [
+                clean_hashtag(
+                    topic.replace(
+                        " ",
+                        "",
+                    )
+                ),
+                "#N1MOX30",
+                "#ContentCreator",
+            ],
+        }
+
+    except Exception as error:
+
+        if settings.ai_enable_demo_fallback:
+
+            print(
+                "AI content generation failed. "
+                "Using deterministic fallback:",
+                str(error),
+            )
+
+            return generate_demo_content(
+                platform=platform,
+                topic=topic,
+                content_type=content_type,
+                tone=tone,
+                creator_context=creator_context,
+            )
+
+        raise RuntimeError(
+            f"AI content generation failed: {error}"
+        ) from error
+
+
+# =================================================
+# RESPONSE PARSING
+# =================================================
+
+
+def parse_text_section(
+    *,
+    text: str,
+    section_name: str,
+    next_sections: list[str],
+) -> str:
+    """
+    Extract a named section from structured AI text.
+    """
+
+    escaped_section = re.escape(
+        section_name
+    )
+
+    if next_sections:
+
+        next_pattern = "|".join(
+            re.escape(section)
+            for section in next_sections
+        )
+
+        pattern = (
+            rf"{escaped_section}\s*:\s*"
+            rf"(.*?)"
+            rf"(?=\n\s*(?:{next_pattern})\s*:|\Z)"
+        )
+
+    else:
+
+        pattern = (
+            rf"{escaped_section}\s*:\s*"
+            rf"(.*)"
+        )
+
+    match = re.search(
+        pattern,
+        text,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+
+    if not match:
+        return ""
+
+    return match.group(1).strip()
+
+
+def parse_numbered_section(
+    *,
+    text: str,
+    section_name: str,
+    next_sections: list[str],
+) -> list[str]:
+    """
+    Extract numbered list items from an AI section.
+    """
+
+    section = parse_text_section(
+        text=text,
+        section_name=section_name,
+        next_sections=next_sections,
+    )
+
+    if not section:
+        return []
+
+    titles = []
+
+    for line in section.splitlines():
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        line = re.sub(
+            r"^\d+[\.\)\-]\s*",
+            "",
+            line,
+        )
+
+        line = line.strip(
+            " -"
+        )
+
+        if line:
+            titles.append(line)
+
+    return titles
+
+
+def extract_hashtags(
+    text: str,
+) -> list[str]:
+    """
+    Extract unique hashtags from AI output.
+    """
+
+    hashtags = re.findall(
+        r"#[A-Za-z0-9_]+",
+        text,
+    )
+
+    unique_hashtags = []
+
+    for hashtag in hashtags:
+
+        if hashtag not in unique_hashtags:
+            unique_hashtags.append(
+                hashtag
+            )
+
+    return unique_hashtags
+
+
+# =================================================
+# DETERMINISTIC YOUTUBE INSIGHTS
+# =================================================
+
+
+def generate_deterministic_youtube_insights(
+    analytics_data: dict[str, Any],
+) -> str:
+    """
+    Generate a reliable analytics report without relying
+    on an external AI provider.
+    """
+
+    views = analytics_data.get(
+        "views",
+        {},
+    )
+
+    followers = analytics_data.get(
+        "followers",
+        {},
+    )
+
+    snapshot_count = analytics_data.get(
+        "snapshot_count",
+        0,
+    )
+
+    latest_views = int(
+        views.get("latest", 0) or 0
+    )
+
+    latest_followers = int(
+        followers.get("latest", 0) or 0
+    )
+
+    view_change = int(
+        views.get("change", 0) or 0
+    )
+
+    follower_change = int(
+        followers.get("change", 0) or 0
+    )
+
+    view_trend = views.get(
+        "trend",
+        "stable",
+    )
+
+    follower_trend = followers.get(
+        "trend",
+        "stable",
+    )
+
+    if snapshot_count < 2:
+
+        summary = (
+            f"The channel currently has "
+            f"{latest_views:,} total views and "
+            f"{latest_followers:,} subscribers."
+        )
+
+        data_status = (
+            "Only one analytics snapshot is currently "
+            "available, so real growth trends cannot yet "
+            "be measured."
+        )
+
+        key_insights = [
+            f"The current baseline is {latest_views:,} views.",
+            f"The current baseline is {latest_followers:,} subscribers.",
+            "A second snapshot is required before changes over time can be measured.",
+        ]
+
+        recommendations = [
+            "Create another analytics snapshot after additional channel activity.",
+            "Keep publishing consistently to create useful historical data.",
+            "Use different hooks, titles, and topics to test what attracts viewers.",
+        ]
+
+        priority_action = (
+            "Create the next analytics snapshot later so "
+            "N1MOX30 can begin measuring real growth."
+        )
+
+    else:
+
+        summary = (
+            f"The channel currently has {latest_views:,} "
+            f"total views and {latest_followers:,} "
+            f"subscribers."
+        )
+
+        data_status = (
+            f"{snapshot_count} analytics snapshots are "
+            f"available, allowing N1MOX30 to measure "
+            f"changes over the recorded period."
+        )
+
+        key_insights = [
+            (
+                f"Views changed by {view_change:,} "
+                f"and the current view trend is "
+                f"{view_trend}."
+            ),
+            (
+                f"Subscribers changed by "
+                f"{follower_change:,} and the current "
+                f"subscriber trend is {follower_trend}."
+            ),
+            (
+                "Continue collecting snapshots to make "
+                "trend analysis more reliable."
+            ),
+        ]
+
+        recommendations = []
+
+        if view_change <= 0:
+            recommendations.append(
+                "Test stronger video hooks, titles, and content topics to improve viewer growth."
+            )
+        else:
+            recommendations.append(
+                "Analyze the content published during the growth period and repeat successful patterns."
+            )
+
+        if follower_change <= 0:
+            recommendations.append(
+                "Add clearer calls to action that encourage viewers to subscribe."
+            )
+        else:
+            recommendations.append(
+                "Identify which content patterns are attracting subscribers and create more similar content."
+            )
+
+        recommendations.append(
+            "Continue recording analytics snapshots to improve trend accuracy."
+        )
+
+        priority_action = (
+            "Review your strongest content patterns and "
+            "use them to guide your next content plan."
+        )
+
+    return (
+        "SUMMARY:\n"
+        f"{summary}\n\n"
+        "DATA STATUS:\n"
+        f"{data_status}\n\n"
+        "KEY INSIGHTS:\n"
+        f"- {key_insights[0]}\n"
+        f"- {key_insights[1]}\n"
+        f"- {key_insights[2]}\n\n"
+        "GROWTH RECOMMENDATIONS:\n"
+        f"- {recommendations[0]}\n"
+        f"- {recommendations[1]}\n"
+        f"- {recommendations[2]}\n\n"
+        "PRIORITY ACTION:\n"
+        f"{priority_action}"
+    )
+
+
+# =================================================
+# YOUTUBE AI INSIGHTS
+# =================================================
+
+
+def generate_youtube_ai_insights(
+    analytics_data: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Generate AI-powered YouTube insights.
+
+    If an AI provider returns an unusable response,
+    N1MOX30 automatically returns deterministic,
+    analytics-specific insights instead.
+    """
+
+    views = analytics_data.get(
+        "views",
+        {},
+    )
+
+    followers = analytics_data.get(
+        "followers",
+        {},
+    )
+
+    snapshot_count = analytics_data.get(
+        "snapshot_count",
+        0,
+    )
+
+    period = analytics_data.get(
+        "period",
+        {},
+    )
+
+    deterministic_analysis = (
+        generate_deterministic_youtube_insights(
+            analytics_data
+        )
+    )
+
+    prompt = f"""
+You are the creator intelligence engine inside N1MOX30.
+
+Analyze ONLY the YouTube analytics below.
+
+IMPORTANT RULES:
+
+1. Do not ask any questions.
+2. Do not introduce yourself.
+3. Do not refuse to analyze normal channel analytics.
+4. Do not say "I can't discuss that."
+5. Do not say "What are you working on?"
+6. Do not mention being an AI.
+7. Do not invent data.
+8. Use the actual numbers provided.
+9. If there is only one snapshot, clearly state that
+   historical growth cannot yet be measured.
+10. Return a useful creator intelligence report only.
+
+ANALYTICS:
+
+Platform: YouTube
+
+Snapshot count:
+{snapshot_count}
+
+First recorded date:
+{period.get("first_recorded_at", "Not available")}
+
+Latest recorded date:
+{period.get("latest_recorded_at", "Not available")}
+
+VIEWS:
+
+First:
+{views.get("first", 0)}
+
+Latest:
+{views.get("latest", 0)}
+
+Change:
+{views.get("change", 0)}
+
+Trend:
+{views.get("trend", "unknown")}
+
+SUBSCRIBERS:
+
+First:
+{followers.get("first", 0)}
+
+Latest:
+{followers.get("latest", 0)}
+
+Change:
+{followers.get("change", 0)}
+
+Trend:
+{followers.get("trend", "unknown")}
+
+Return EXACTLY this structure:
+
+SUMMARY:
+A concise summary with actual view and subscriber numbers.
+
+DATA STATUS:
+Explain whether historical data is sufficient.
+
+KEY INSIGHTS:
+- Insight 1
+- Insight 2
+- Insight 3
+
+GROWTH RECOMMENDATIONS:
+- Recommendation 1
+- Recommendation 2
+- Recommendation 3
+
+PRIORITY ACTION:
+The most important next action.
+"""
+
+    try:
+
+        text = generate_ai_text(
+            prompt=prompt,
+            temperature=0.3,
+        )
+
+        text = clean_ai_response(
+            text
+        )
+
+        lower_text = text.lower()
+
+        invalid_responses = [
+            "i can't discuss that",
+            "i cant discuss that",
+            "what are you working on",
+            "how can i help",
+            "i'm sorry",
+            "i am sorry",
+        ]
+
+        if (
+            not text
+            or len(text) < 100
+            or any(
+                phrase in lower_text
+                for phrase in invalid_responses
+            )
+        ):
+            raise ValueError(
+                "AI provider returned an unusable "
+                "analytics response."
+            )
+
+        # Require the response to contain useful
+        # analytics structure.
+        required_sections = [
+            "summary",
+            "data status",
+            "key insights",
+            "growth recommendations",
+            "priority action",
+        ]
+
+        if not all(
+            section in lower_text
+            for section in required_sections
+        ):
+            raise ValueError(
+                "AI response did not follow the required "
+                "analytics structure."
+            )
+
+        return {
+            "status": "success",
+            "provider": "ai",
+            "analysis": text,
+        }
+
+    except Exception as error:
+
+        return {
+            "status": "success",
+            "provider": "deterministic_fallback",
+            "analysis": deterministic_analysis,
+            "fallback_reason": str(error),
+        }

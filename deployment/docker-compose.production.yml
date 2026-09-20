@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ../backend
+    restart: unless-stopped
+    env_file: ../backend/.env
+    ports: ["8000:8000"]
+    volumes:
+      - n1mox30_media:/app/storage
+      - n1mox30_data:/app/data
+  frontend:
+    build: ../frontend
+    restart: unless-stopped
+    depends_on: [backend]
+    ports: ["80:80"]
+volumes:
+  n1mox30_media:
+  n1mox30_data:

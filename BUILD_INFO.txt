@@ -1,0 +1,9 @@
+N1MOX30 Launch Candidate Test4.2
+Fixes:
+- Frontend lucide-react brand-icon build errors removed.
+- AWS Bedrock credential/profile/API-key support documented.
+- Bedrock model default and max token configuration added.
+- OpenClaw <-> Bedrock automatic per-request failover configured.
+- Failover metadata exposed by AI router.
+- Setup script fails fast on frontend build errors.
+- Backend compilation verified.

@@ -1,0 +1,15 @@
+{
+  "expo":{
+    "name":"N1MOX30",
+    "slug":"n1mox30",
+    "version":"1.0.0",
+    "orientation":"portrait",
+    "scheme":"n1mox30",
+    "userInterfaceStyle":"automatic",
+    "newArchEnabled":true,
+    "plugins":["expo-router"],
+    "android":{"package":"com.n1mox30.app"},
+    "ios":{"bundleIdentifier":"com.n1mox30.app"},
+    "web":{"bundler":"metro"}
+  }
+}
