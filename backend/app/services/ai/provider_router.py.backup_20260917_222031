@@ -1,0 +1,294 @@
+﻿from __future__ import annotations
+
+import re
+from typing import Any, Callable
+
+from app.core.config import settings
+from app.services.ai.bedrock_provider import bedrock_provider
+from app.services.ai.openclaw_provider import openclaw_provider
+
+
+Validator = Callable[[str], bool]
+
+
+class AIProviderRouter:
+    """
+    Central AI provider router for N1MOX30.
+
+    Modes:
+        demo     -> no external provider
+        bedrock  -> Bedrock only
+        openclaw -> OpenClaw only
+        auto     -> primary -> fallback
+
+    Provider output is cleaned before validation so OpenClaw
+    transport/metadata lines do not break structured validation.
+    """
+
+    def __init__(self) -> None:
+        self.providers = {
+            "bedrock": bedrock_provider,
+            "openclaw": openclaw_provider,
+        }
+
+    @staticmethod
+    def _clean_provider_output(text: Any) -> str:
+        if text is None:
+            return ""
+
+        text = str(text)
+
+        # Remove ANSI terminal escape sequences.
+        text = re.sub(
+            r"\x1B\[[0-?]*[ -/]*[@-~]",
+            "",
+            text,
+        )
+
+        cleaned_lines: list[str] = []
+
+        ignored_prefixes = (
+            "[provider-transport-fetch]",
+            "[model-fetch]",
+            "[provider]",
+            "model.run via",
+            "provider:",
+            "model:",
+            "outputs:",
+            "thinking...",
+        )
+
+        for line in text.splitlines():
+            stripped = line.strip()
+
+            if not stripped:
+                continue
+
+            lower = stripped.lower()
+
+            # Remove OpenClaw / OmniRoute transport metadata.
+            if any(
+                item in lower
+                for item in ignored_prefixes
+            ):
+                continue
+
+            # Remove timestamped transport logs.
+            if re.match(
+                r"^\d{2}:\d{2}:\d{2}\s+\[",
+                stripped,
+            ):
+                continue
+
+            cleaned_lines.append(stripped)
+
+        cleaned = "\n".join(cleaned_lines).strip()
+
+        # Repair common encoding artifacts.
+        replacements = {
+            "â€™": "'",
+            "â€˜": "'",
+            "â€œ": '"',
+            "â€": '"',
+            "â€“": "-",
+            "â€”": "-",
+            "â€¦": "...",
+            "Â": "",
+            "\u00a0": " ",
+        }
+
+        for old, new in replacements.items():
+            cleaned = cleaned.replace(old, new)
+
+        return cleaned.strip()
+
+    def generate(
+        self,
+        *,
+        prompt: str,
+        temperature: float = 0.7,
+        validator: Validator | None = None,
+    ) -> dict[str, Any]:
+
+        if not prompt or not prompt.strip():
+            raise ValueError(
+                "AI prompt cannot be empty."
+            )
+
+        mode = (
+            settings.ai_provider
+            .lower()
+            .strip()
+        )
+
+        if mode == "demo":
+            raise RuntimeError(
+                "Demo mode does not use an external AI provider."
+            )
+
+        if mode in {"bedrock", "openclaw"}:
+            return self._generate_with_provider(
+                mode,
+                prompt=prompt,
+                temperature=temperature,
+                validator=validator,
+                attempted_providers=[mode],
+                fallback_used=False,
+            )
+
+        if mode != "auto":
+            raise ValueError(
+                f"Unsupported router mode: {mode}"
+            )
+
+        return self._generate_auto(
+            prompt=prompt,
+            temperature=temperature,
+            validator=validator,
+        )
+
+    def _generate_auto(
+        self,
+        *,
+        prompt: str,
+        temperature: float,
+        validator: Validator | None,
+    ) -> dict[str, Any]:
+
+        providers = self._get_auto_route()
+
+        errors: list[str] = []
+        attempted: list[str] = []
+
+        for provider_name in providers:
+            attempted.append(provider_name)
+
+            try:
+                return self._generate_with_provider(
+                    provider_name,
+                    prompt=prompt,
+                    temperature=temperature,
+                    validator=validator,
+                    attempted_providers=list(attempted),
+                    fallback_used=len(attempted) > 1,
+                )
+
+            except Exception as exc:
+                errors.append(
+                    f"{provider_name}: {exc}"
+                )
+
+        raise RuntimeError(
+            "All AI providers failed. "
+            + " | ".join(errors)
+        )
+
+    def _get_auto_route(self) -> list[str]:
+
+        primary = (
+            getattr(
+                settings,
+                "ai_primary_provider",
+                "",
+            )
+            or ""
+        ).lower().strip()
+
+        fallback = (
+            getattr(
+                settings,
+                "ai_fallback_provider",
+                "",
+            )
+            or ""
+        ).lower().strip()
+
+        route: list[str] = []
+
+        for provider_name in (
+            primary,
+            fallback,
+        ):
+            if (
+                provider_name
+                and provider_name in self.providers
+                and provider_name not in route
+            ):
+                route.append(provider_name)
+
+        if not route:
+            raise RuntimeError(
+                "No valid AI providers are configured "
+                "for automatic routing."
+            )
+
+        return route
+
+    def _generate_with_provider(
+        self,
+        provider_name: str,
+        *,
+        prompt: str,
+        temperature: float,
+        validator: Validator | None,
+        attempted_providers: list[str],
+        fallback_used: bool,
+    ) -> dict[str, Any]:
+
+        provider = self.providers.get(
+            provider_name
+        )
+
+        if provider is None:
+            raise ValueError(
+                f"Unknown AI provider: {provider_name}"
+            )
+
+        if not provider.is_available():
+            raise RuntimeError(
+                f"Provider '{provider_name}' "
+                "is not available."
+            )
+
+        raw_text = provider.generate(
+            prompt=prompt,
+            temperature=temperature,
+        )
+
+        text = self._clean_provider_output(
+            raw_text
+        )
+
+        if not text:
+            raise RuntimeError(
+                f"Provider '{provider_name}' "
+                "returned empty output."
+            )
+
+        if validator is not None:
+            try:
+                valid = bool(
+                    validator(text)
+                )
+
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Validator failed for provider "
+                    f"'{provider_name}': {exc}"
+                ) from exc
+
+            if not valid:
+                raise RuntimeError(
+                    f"Provider '{provider_name}' "
+                    "returned unusable structured output."
+                )
+
+        return {
+            "provider": provider_name,
+            "text": text,
+            "attempted_providers": attempted_providers,
+            "fallback_used": fallback_used,
+        }
+
+
+ai_provider_router = AIProviderRouter()

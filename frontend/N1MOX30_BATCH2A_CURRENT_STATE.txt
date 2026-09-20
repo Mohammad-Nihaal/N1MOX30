@@ -1,0 +1,1714 @@
+===== N1MOX30 BATCH 2A CURRENT STATE =====
+
+===== PAGES =====
+Accounts.jsx
+AIHistory.jsx
+AIStudio.jsx
+Analytics.jsx
+Assistant.jsx
+Create.jsx
+DailyWorkspace.jsx
+Dashboard.jsx
+Growth.jsx
+Intelligence.jsx
+Login.jsx
+Notifications.jsx
+Pricing.jsx
+Privacy.jsx
+PublicPages.jsx
+PublishingCenter.jsx
+Register.jsx
+Research.jsx
+Schedules.jsx
+Settings.jsx
+Terms.jsx
+Workflows.jsx
+YouTube.jsx
+
+===== COMPONENTS =====
+Header.jsx
+N1MOXVoice.tsx
+ProductionControls.jsx
+Sidebar.jsx
+
+===== APP.JSX =====
+import { BrowserRouter, Navigate, Route, Routes, Link, useLocation } from "react-router-dom";
+import { useAuth } from "./context/AuthContext";
+import DashboardLayout from "./layouts/DashboardLayout";
+
+import Accounts from "./pages/Accounts";
+import AIHistory from "./pages/AIHistory";
+import AIStudio from "./pages/AIStudio";
+import Analytics from "./pages/Analytics";
+import Assistant from "./pages/Assistant";
+import Dashboard from "./pages/Dashboard";
+import Growth from "./pages/Growth";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Pricing from "./pages/Pricing";
+import { Seo, NotFoundPage, HelpPage, ContactPage, PrivacyPage, TermsPage, CookiePage, DataRequestPage, AboutPage } from "./pages/PublicPages";
+import { ProductionControls } from "./components/ProductionControls";
+import Research from "./pages/Research";
+import Schedules from "./pages/Schedules";
+import YouTube from "./pages/YouTube";
+import Create from "./pages/Create";
+import Workflows from "./pages/Workflows";
+import Intelligence from "./pages/Intelligence";
+import Notifications from "./pages/Notifications";
+import Settings from "./pages/Settings";
+import PublishingCenter from "./pages/PublishingCenter";
+import DailyWorkspace from "./pages/DailyWorkspace";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
+
+import "./App.css";
+import "./styles/auth.css";
+
+function ProtectedRoute({ children }) {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) return <div className="app-loader">Loading N1MOX30...</div>;
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  return children;
+}
+
+function HomeRoute() {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return <div className="landing-loading">N1MOX30</div>;
+  if (isAuthenticated) return <Navigate to="/app" replace />;
+
+  return (
+    <main className="landing-page">
+      <nav className="landing-nav">
+        <Link to="/" className="landing-brand">
+          <span className="landing-mark">N</span>
+          <span>N1MOX30</span>
+        </Link>
+        <div className="landing-nav-links">
+          <a href="#platform">Platform</a>
+          <a href="#workflow">Workflow</a>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+        </div>
+        <div className="landing-nav-actions">
+          <Link to="/login" className="landing-login">Log in</Link>
+          <Link to="/register" className="landing-cta">Start creating</Link>
+        </div>
+      </nav>
+
+      <section className="landing-hero">
+        <div className="landing-eyebrow">THE CREATOR OPERATING SYSTEM</div>
+        <h1>Turn an idea into a<br /><span>published video.</span></h1>
+        <p>
+          N1MOX30 brings research, strategy, scripting, voice, visuals, editing,
+          analytics and publishing into one intelligent creator workspace.
+        </p>
+        <div className="landing-hero-actions">
+          <Link to="/register" className="landing-primary-btn">Build your first workflow <span>Ã¢â€ â€™</span></Link>
+          <a href="#platform" className="landing-secondary-btn">See how it works</a>
+        </div>
+        <div className="landing-proof">
+          <span>Research</span><i>Ã‚Â·</i><span>Script</span><i>Ã‚Â·</i><span>Voice</span><i>Ã‚Â·</i>
+          <span>Visuals</span><i>Ã‚Â·</i><span>Publish</span>
+        </div>
+      </section>
+
+      <section id="platform" className="landing-product">
+        <div className="product-frame">
+          <div className="product-topbar"><span>N1MOX30</span><span>Creator Command Center</span><span>Ã¢â€”Â Live</span></div>
+          <div className="product-grid">
+            <aside className="product-sidebar">
+              <small>WORKSPACE</small>
+              <b>Overview</b><span>AI Studio</span><span>Workflows</span><span>Intelligence</span>
+              <small>CONTENT</small>
+              <span>Create</span><span>Schedules</span><span>Publishing</span>
+            </aside>
+            <div className="product-main">
+              <div className="product-heading"><div><small>MONDAY Ã‚Â· CREATOR OS</small><h3>Good morning.</h3></div><button>+ New workflow</button></div>
+              <div className="product-stats">
+                <div><small>CONTENT VELOCITY</small><strong>+38%</strong><em>vs last 30 days</em></div>
+                <div><small>WORKFLOWS</small><strong>24</strong><em>8 running today</em></div>
+                <div><small>CHANNEL HEALTH</small><strong>92</strong><em>Strong momentum</em></div>
+              </div>
+              <div className="product-workflow">
+                <div className="workflow-head"><span>Publishing pipeline</span><small>Today</small></div>
+                <div className="workflow-line">
+                  <div className="workflow-node done"><b>01</b><span>Research</span><small>Complete</small></div>
+                  <div className="workflow-node done"><b>02</b><span>Strategy</span><small>Complete</small></div>
+                  <div className="workflow-node active"><b>03</b><span>Production</span><small>Rendering</small></div>
+                  <div className="workflow-node"><b>04</b><span>Quality</span><small>Queued</small></div>
+                  <div className="workflow-node"><b>05</b><span>Publish</span><small>Scheduled</small></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow" className="landing-section">
+        <div className="section-kicker">ONE CONTINUOUS WORKFLOW</div>
+        <h2>From signal to story<br />without the busywork.</h2>
+        <p className="section-lead">Every stage connects. Every output becomes useful context for the next.</p>
+        <div className="story-grid">
+          {[
+            ["01", "Discover", "Find topics, trends and audience signals worth turning into content."],
+            ["02", "Develop", "Generate strategy, hooks, scripts, narration and visual direction."],
+            ["03", "Produce", "Assemble assets, captions, thumbnails and metadata automatically."],
+            ["04", "Publish", "Schedule, distribute and learn from the performance of every release."]
+          ].map(([n,t,d]) => <article className="story-card" key={n}><span>{n}</span><h3>{t}</h3><p>{d}</p><b>Ã¢â€ â€”</b></article>)}
+        </div>
+      </section>
+
+      <section id="features" className="landing-section landing-dark">
+        <div className="section-kicker">BUILT FOR SERIOUS CREATORS</div>
+        <h2>One system.<br />Every moving part.</h2>
+        <div className="feature-grid">
+          {[
+            ["AI Studio", "Create titles, scripts, captions and creative direction with a connected context."],
+            ["Automation Engine", "Build repeatable workflows that move content from idea to production."],
+            ["Creator Intelligence", "Understand performance, growth signals and what to make next."],
+            ["Multi-platform", "Prepare content for YouTube and short-form destinations from one workspace."],
+            ["Voice + Visuals", "Turn structured ideas into narration and production-ready visual assets."],
+            ["Publishing Control", "Keep approvals, scheduling and connected accounts under your control."]
+          ].map(([t,d]) => <div className="feature-card" key={t}><span>Ã¢Å“Â¦</span><h3>{t}</h3><p>{d}</p></div>)}
+        </div>
+      </section>
+
+      <section className="landing-section integrations">
+        <div className="section-kicker">CONNECTED CREATOR STACK</div>
+        <h2>Your tools.<br />One operating layer.</h2>
+        <p className="section-lead">N1MOX30 is designed to sit above the platforms you already use, not replace your audience or ownership.</p>
+        <div className="integration-row"><span>YouTube</span><span>Instagram</span><span>TikTok</span><span>X</span><span>OpenClaw</span><span>OmniRoute</span></div>
+      </section>
+
+      <section id="pricing" className="landing-pricing">
+        <div className="section-kicker">SIMPLE START</div>
+        <h2>Build first.<br />Scale when ready.</h2>
+        <div className="price-card"><div><small>CREATOR WORKSPACE</small><h3>Start with the core OS</h3><p>Explore the complete workflow before committing to a larger production setup.</p></div><Link to="/register">Create account Ã¢â€ â€™</Link></div>
+      </section>
+
+      <section className="landing-final">
+        <div className="section-kicker">YOUR NEXT VIDEO STARTS HERE</div>
+        <h2>Stop managing<br />the process. <span>Run it.</span></h2>
+        <Link to="/register" className="landing-primary-btn">Enter N1MOX30 <span>Ã¢â€ â€™</span></Link>
+      </section>
+
+      <footer className="landing-footer">
+        <div className="footer-main"><div><Link to="/" className="landing-brand"><span className="landing-mark">N</span><span>N1MOX30</span></Link><p>Creator intelligence. Automated production.<br />One operating system for modern creators.</p></div><div className="footer-columns"><div><b>Product</b><a href="#platform">Platform</a><a href="#workflow">Workflow</a><a href="#features">Features</a></div><div><b>Company</b><a href="#pricing">Pricing</a><a href="#platform">Security</a><a href="#platform">Contact</a></div><div><b>Legal</b><Link to="/terms">Terms</Link><Link to="/privacy">Privacy</Link></div></div></div>
+        <div className="footer-bottom"><span>Ã‚Â© 2026 N1MOX30. All rights reserved.</span><span>Built for creators who ship.</span></div>
+      </footer>
+    </main>
+  );
+}
+
+function AppRoutes() {
+  return <Routes>
+    <Route path="/" element={<HomeRoute />} />
+    <Route path="/login" element={<Login />} />
+      <Route path="/pricing" element={<Pricing />} />
+      <Route path="/help" element={<HelpPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/cookies" element={<CookiePage />} />
+      <Route path="/data-request" element={<DataRequestPage />} />
+    <Route path="/register" element={<Register />} />
+    <Route path="/terms" element={<Terms />} />
+    <Route path="/privacy" element={<Privacy />} />
+    <Route path="/app" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+      <Route index element={<Dashboard />} />
+      <Route path="assistant" element={<Assistant />} /><Route path="create" element={<Create />} />
+      <Route path="workflows" element={<Workflows />} /><Route path="intelligence" element={<Intelligence />} />
+      <Route path="notifications" element={<Notifications />} /><Route path="settings" element={<Settings />} />
+      <Route path="publishing" element={<PublishingCenter />} /><Route path="daily" element={<DailyWorkspace />} />
+      <Route path="youtube" element={<YouTube />} /><Route path="analytics" element={<Analytics />} />
+      <Route path="growth" element={<Growth />} /><Route path="ai-studio" element={<AIStudio />} />
+      <Route path="research" element={<Research />} /><Route path="ai-history" element={<AIHistory />} />
+      <Route path="schedules" element={<Schedules />} /><Route path="accounts" element={<Accounts />} />
+    </Route>
+    <Route path="/dashboard" element={<Navigate to="/app" replace />} />
+    <Route path="*" element={<NotFoundPage />} />
+  </Routes>;
+}
+
+export default function App() {
+  return <BrowserRouter><AppRoutes /></BrowserRouter>;
+}
+
+
+===== SIDEBAR.JSX =====
+import {
+  BarChart3,
+  Bot,
+  BrainCircuit,
+  CalendarDays,
+  ChevronRight,
+  Compass,
+  FileClock,
+  FolderKanban,
+  Gauge,
+  LayoutDashboard,
+  Settings,
+  Sparkles,
+  TrendingUp,
+  Video,
+  Workflow,
+  Send,
+} from "lucide-react";
+import { NavLink } from "react-router-dom";
+
+const groups = [
+  {
+    label: "WORKSPACE",
+    items: [
+      {
+        name: "Dashboard",
+        path: "/app",
+        icon: LayoutDashboard,
+        end: true,
+      },
+      {
+        name: "N1MOX Assistant",
+        path: "/app/assistant",
+        icon: Bot,
+      },
+      {
+        name: "Create",
+        path: "/app/create",
+        icon: Sparkles,
+        accent: true,
+      },
+      {
+        name: "Workflows",
+        path: "/app/workflows",
+        icon: Workflow,
+      },
+    ],
+  },
+  {
+    label: "INTELLIGENCE",
+    items: [
+      {
+        name: "Intelligence",
+        path: "/app/intelligence",
+        icon: BrainCircuit,
+      },
+      {
+        name: "Research",
+        path: "/app/research",
+        icon: Compass,
+      },
+      {
+        name: "Analytics",
+        path: "/app/analytics",
+        icon: BarChart3,
+      },
+      {
+        name: "Growth",
+        path: "/app/growth",
+        icon: TrendingUp,
+      },
+    ],
+  },
+  {
+    label: "PUBLISH",
+    items: [
+      {
+        name: "Video",
+        path: "/app/publishing",
+        icon: Video,
+      },
+      {
+        name: "Publishing Center",
+        path: "/app/publishing",
+        icon: Send,
+      },
+      {
+        name: "Daily Workspace",
+        path: "/app/daily",
+        icon: CalendarDays,
+      },
+      {
+        name: "Scheduler",
+        path: "/app/schedules",
+        icon: CalendarDays,
+      },
+      {
+        name: "AI Studio",
+        path: "/app/ai-studio",
+        icon: Gauge,
+      },
+      {
+        name: "History",
+        path: "/app/ai-history",
+        icon: FileClock,
+      },
+    ],
+  },
+  {
+    label: "SYSTEM",
+    items: [
+      {
+        name: "Notifications",
+        path: "/app/notifications",
+        icon: FolderKanban,
+      },
+      {
+        name: "Accounts",
+        path: "/app/accounts",
+        icon: Video,
+      },
+      {
+        name: "Settings",
+        path: "/app/settings",
+        icon: Settings,
+      },
+    ],
+  },
+];
+
+function Sidebar({ sidebarOpen }) {
+  return (
+    <aside
+      className={`sidebar ${
+        sidebarOpen ? "sidebar-open" : "closed"
+      }`}
+      aria-label="N1MOX30 navigation"
+    >
+      <div className="brand">
+        <div className="brand-logo" aria-hidden="true">
+          N
+        </div>
+
+        {sidebarOpen && (
+          <div className="brand-text">
+            <h1>N1MOX30</h1>
+            <span>Creator Operating System</span>
+          </div>
+        )}
+      </div>
+
+      <nav className="nav-menu" aria-label="Primary navigation">
+        {groups.map((group) => (
+          <div
+            key={group.label}
+            className="n1-nav-group"
+          >
+            {sidebarOpen && (
+              <div className="n1-nav-label">
+                {group.label}
+              </div>
+            )}
+
+            {group.items.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <NavLink
+                  key={`${item.path}-${item.name}`}
+                  to={item.path}
+                  end={item.end === true}
+                  title={
+                    sidebarOpen
+                      ? undefined
+                      : item.name
+                  }
+                  className={({ isActive }) =>
+                    [
+                      "nav-item",
+                      isActive ? "active" : "",
+                      item.accent
+                        ? "nav-create"
+                        : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")
+                  }
+                >
+                  <Icon
+                    size={18}
+                    strokeWidth={2}
+                  />
+
+                  {sidebarOpen && (
+                    <span>{item.name}</span>
+                  )}
+
+                  {sidebarOpen && (
+                    <ChevronRight
+                      className="n1-nav-arrow"
+                      size={14}
+                    />
+                  )}
+                </NavLink>
+              );
+            })}
+          </div>
+        ))}
+      </nav>
+
+      {sidebarOpen && (
+        <div className="n1-sidebar-status">
+          <span className="n1-status-pulse" />
+
+          <div>
+            <strong>N1MOX Engine</strong>
+            <small>Systems operational</small>
+          </div>
+        </div>
+      )}
+    </aside>
+  );
+}
+
+export default Sidebar;
+
+===== HEADER.JSX =====
+import {
+  Bell,
+  Command,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+  Search,
+  Sparkles,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+function Header({ sidebarOpen, setSidebarOpen }) {
+  const navigate = useNavigate();
+
+  const userName = (() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      return user.full_name || user.fullName || user.name || "Creator";
+    } catch {
+      return "Creator";
+    }
+  })();
+
+  const initial = userName.trim().charAt(0).toUpperCase() || "N";
+
+  return (
+    <header className="n1-header">
+      <div className="n1-header-left">
+        <button
+          type="button"
+          className="n1-sidebar-toggle"
+          onClick={() => setSidebarOpen((value) => !value)}
+          aria-label={
+            sidebarOpen ? "Collapse navigation" : "Expand navigation"
+          }
+        >
+          {sidebarOpen ? (
+            <PanelLeftClose size={19} />
+          ) : (
+            <PanelLeftOpen size={19} />
+          )}
+        </button>
+      </div>
+
+      <div className="n1-global-search">
+        <Search size={16} />
+        <input
+          aria-label="Search N1MOX30"
+          placeholder="Search content, workflows, insights..."
+        />
+        <span className="n1-search-key">
+          <Command size={11} />
+          K
+        </span>
+      </div>
+
+      <div className="n1-header-actions">
+        <button
+          type="button"
+          className="n1-header-action"
+          title="N1MOX Assistant"
+          aria-label="N1MOX Assistant"
+          onClick={() => navigate("/app/assistant")}
+        >
+          <Sparkles size={17} />
+        </button>
+
+        <button
+          type="button"
+          className="n1-header-action n1-notification-button"
+          title="Notifications"
+          aria-label="Notifications"
+          onClick={() => navigate("/app/notifications")}
+        >
+          <Bell size={17} />
+          <span />
+        </button>
+
+        <button
+          type="button"
+          className="n1-create-button"
+          onClick={() => navigate("/app/create")}
+        >
+          <Plus size={16} />
+          <span>Create</span>
+        </button>
+
+        <div className="n1-header-user">
+          <div className="n1-user-avatar">{initial}</div>
+
+          <div className="n1-user-details">
+            <strong>{userName}</strong>
+            <span>Creator workspace</span>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+export default Header;
+
+===== DASHBOARD.JSX =====
+import { useEffect, useState } from "react";
+import {
+  AlertCircle,
+  ArrowUpRight,
+  BarChart3,
+  BrainCircuit,
+  CalendarDays,
+  ChevronRight,
+  Clapperboard,
+  FileText,
+  Lightbulb,
+  Play,
+  RefreshCw,
+  Send,
+  Sparkles,
+  TrendingUp,
+  Video,
+  WandSparkles,
+  Workflow,
+} from "lucide-react";
+
+import { useNavigate } from "react-router-dom";
+import api from "../api/client";
+
+const pipeline = [
+  {
+    number: "01",
+    title: "Research",
+    description: "Discover signals",
+    icon: Lightbulb,
+  },
+  {
+    number: "02",
+    title: "Strategy",
+    description: "Find the angle",
+    icon: BrainCircuit,
+  },
+  {
+    number: "03",
+    title: "Script",
+    description: "Build the story",
+    icon: FileText,
+  },
+  {
+    number: "04",
+    title: "Production",
+    description: "Generate assets",
+    icon: Clapperboard,
+  },
+  {
+    number: "05",
+    title: "Publish",
+    description: "Ship everywhere",
+    icon: Send,
+  },
+];
+
+function Dashboard() {
+  const navigate = useNavigate();
+
+  const [dashboard, setDashboard] = useState(null);
+  const [performance, setPerformance] = useState(null);
+  const [insights, setInsights] = useState(null);
+  const [growthScore, setGrowthScore] = useState(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  async function loadDashboardData() {
+    try {
+      setLoading(true);
+      setError("");
+
+      const results = await Promise.allSettled([
+        api.get("/youtube/dashboard"),
+        api.get("/youtube/performance"),
+        api.get("/youtube/insights"),
+        api.get("/youtube/growth-score"),
+      ]);
+
+      const [
+        dashboardResult,
+        performanceResult,
+        insightsResult,
+        growthResult,
+      ] = results;
+
+      const dashboardData =
+        dashboardResult.status === "fulfilled"
+          ? dashboardResult.value.data
+          : null;
+
+      const performanceData =
+        performanceResult.status === "fulfilled"
+          ? performanceResult.value.data
+          : null;
+
+      const insightsData =
+        insightsResult.status === "fulfilled"
+          ? insightsResult.value.data
+          : null;
+
+      const growthData =
+        growthResult.status === "fulfilled"
+          ? growthResult.value.data
+          : null;
+
+      if (!dashboardData) {
+        const dashboardError =
+          dashboardResult.reason?.response?.data?.detail ||
+          "Unable to load your YouTube dashboard.";
+
+        throw new Error(dashboardError);
+      }
+
+      setDashboard(dashboardData);
+      setPerformance(performanceData);
+      setInsights(insightsData);
+      setGrowthScore(growthData);
+    } catch (loadError) {
+      console.error("Dashboard loading error:", loadError);
+
+      setDashboard(null);
+      setPerformance(null);
+      setInsights(null);
+      setGrowthScore(null);
+
+      setError(
+        loadError?.message ||
+          loadError?.response?.data?.detail ||
+          "Unable to load dashboard data."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadDashboardData();
+    }, 0);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
+
+  const channel = dashboard?.channel || {};
+  const videos = dashboard?.recent_videos || [];
+
+  const insightList = Array.isArray(insights?.insights)
+    ? insights.insights
+    : [];
+
+  const channelName =
+    channel.channel_name || "YouTube workspace";
+
+  const hasYouTube = Boolean(dashboard);
+
+  const growthValue =
+    growthScore?.growth_score ?? "--";
+
+  const videosAnalyzed =
+    performance?.total_videos_analyzed ??
+    videos.length ??
+    0;
+
+  const growthBarWidth =
+    typeof growthValue === "number"
+      ? Math.min(
+          100,
+          Math.max(0, growthValue)
+        ) + "%"
+      : "0%";
+
+  if (loading) {
+    return (
+      <div className="nm-dashboard">
+        <div className="nm-dashboard-loading">
+          <div className="nm-loading-core">
+            <div />
+            <span>N</span>
+          </div>
+
+          <span className="nm-dashboard-loading-label">
+            INITIALIZING CREATOR OS
+          </span>
+
+          <p>
+            Loading your intelligence workspace...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="nm-dashboard">
+        <section className="nm-dashboard-error">
+          <div className="nm-error-icon">
+            <AlertCircle size={24} />
+          </div>
+
+          <span className="nm-dashboard-kicker">
+            SYSTEM / CONNECTION
+          </span>
+
+          <h1>
+            Your command center
+            <br />
+            needs a connection.
+          </h1>
+
+          <p>{error}</p>
+
+          <div className="nm-error-actions">
+            <button
+              type="button"
+              className="nm-command-button primary"
+              onClick={loadDashboardData}
+            >
+              <RefreshCw size={16} />
+              Retry connection
+            </button>
+
+            <button
+              type="button"
+              className="nm-command-button"
+              onClick={() =>
+                navigate("/app/accounts")
+              }
+            >
+              Connect account
+              <ArrowUpRight size={16} />
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  return (
+    <div className="nm-dashboard">
+      <section className="nm-dashboard-header">
+        <div>
+          <div className="nm-dashboard-kicker">
+            <span className="nm-live-dot" />
+            N1MOX30 / COMMAND CENTER
+          </div>
+
+          <h1>
+            Make the
+            <br />
+            <span>system move.</span>
+          </h1>
+
+          <p>
+            Your creator operation at a glance —
+            intelligence, production and growth.
+          </p>
+        </div>
+
+        <div className="nm-dashboard-header-actions">
+          <div className="nm-system-status">
+            <span className="nm-system-status-dot" />
+            SYSTEM OPERATIONAL
+          </div>
+
+          <button
+            type="button"
+            className="nm-dashboard-refresh"
+            onClick={loadDashboardData}
+            aria-label="Refresh dashboard"
+          >
+            <RefreshCw size={16} />
+          </button>
+        </div>
+      </section>
+
+      <section className="nm-command-strip">
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/app/create")
+          }
+          className="nm-command-primary"
+        >
+          <Sparkles size={17} />
+
+          <span>
+            <small>START SOMETHING</small>
+            Create with N1MOX
+          </span>
+
+          <ArrowUpRight size={16} />
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/app/assistant")
+          }
+          className="nm-command-item"
+        >
+          <WandSparkles size={17} />
+          Ask N1MOX
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/app/research")
+          }
+          className="nm-command-item"
+        >
+          <Lightbulb size={17} />
+          Research
+        </button>
+
+        <button
+          type="button"
+          onClick={() =>
+            navigate("/app/workflows")
+          }
+          className="nm-command-item"
+        >
+          <Workflow size={17} />
+          Run workflow
+        </button>
+      </section>
+
+      <section className="nm-dashboard-hero">
+        <div className="nm-hero-copy">
+          <span className="nm-small-label">
+            CREATOR SYSTEM
+          </span>
+
+          <div className="nm-channel-line">
+            <div className="nm-channel-avatar">
+              <Video size={19} />
+            </div>
+
+            <div>
+              <strong>
+                {hasYouTube
+                  ? channelName
+                  : "No channel connected"}
+              </strong>
+
+              <span>
+                {hasYouTube
+                  ? "YouTube intelligence active"
+                  : "Connect a platform to activate intelligence"}
+              </span>
+            </div>
+          </div>
+
+          <div className="nm-hero-actions">
+            {hasYouTube ? (
+              <button
+                type="button"
+                className="nm-inline-action"
+                onClick={() =>
+                  navigate("/app/youtube")
+                }
+              >
+                Open YouTube intelligence
+                <ArrowUpRight size={15} />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="nm-inline-action"
+                onClick={() =>
+                  navigate("/app/accounts")
+                }
+              >
+                Connect YouTube
+                <ArrowUpRight size={15} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="nm-hero-orbit">
+          <div className="nm-dashboard-orbit orbit-1" />
+          <div className="nm-dashboard-orbit orbit-2" />
+          <div className="nm-dashboard-orbit orbit-3" />
+
+          <div className="nm-dashboard-orbit-core">
+            <span>N</span>
+            <small>30</small>
+          </div>
+
+          <div className="nm-orbit-dot dot-a" />
+          <div className="nm-orbit-dot dot-b" />
+        </div>
+
+        <div className="nm-hero-index">
+          <span>01</span>
+          CREATOR
+          <br />
+          OPERATING
+          <br />
+          SYSTEM
+        </div>
+      </section>
+
+      <section className="nm-metric-grid">
+        <MetricCard
+          label="Growth score"
+          value={growthValue}
+          suffix={
+            growthValue !== "--"
+              ? "/100"
+              : ""
+          }
+          description={
+            growthScore?.summary ||
+            "Performance intelligence"
+          }
+          icon={TrendingUp}
+          accent
+        />
+
+        <MetricCard
+          label="Videos analyzed"
+          value={videosAnalyzed}
+          description="Content currently indexed"
+          icon={BarChart3}
+        />
+
+        <MetricCard
+          label="AI insights"
+          value={insightList.length}
+          description="Recommendations generated"
+          icon={BrainCircuit}
+        />
+
+        <MetricCard
+          label="Platform"
+          value={hasYouTube ? "01" : "00"}
+          description={
+            hasYouTube
+              ? "YouTube connected"
+              : "Connect your first platform"
+          }
+          icon={Video}
+        />
+      </section>
+
+      <section className="nm-dashboard-section">
+        <div className="nm-section-heading">
+          <div>
+            <span className="nm-small-label">
+              THE ENGINE
+            </span>
+
+            <h2>
+              From signal
+              <span> to publish.</span>
+            </h2>
+          </div>
+
+          <button
+            type="button"
+            className="nm-section-link"
+            onClick={() =>
+              navigate("/app/workflows")
+            }
+          >
+            Open automation
+            <ArrowUpRight size={14} />
+          </button>
+        </div>
+
+        <div className="nm-pipeline">
+          {pipeline.map((stage, index) => {
+            const Icon = stage.icon;
+
+            return (
+              <div
+                className="nm-pipeline-stage"
+                key={stage.number}
+              >
+                <div className="nm-pipeline-number">
+                  {stage.number}
+                </div>
+
+                <div className="nm-pipeline-icon">
+                  <Icon size={18} />
+                </div>
+
+                <strong>{stage.title}</strong>
+
+                <span>
+                  {stage.description}
+                </span>
+
+                {index <
+                  pipeline.length - 1 && (
+                  <div className="nm-pipeline-connector">
+                    <ChevronRight size={13} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="nm-intelligence-grid">
+        <div className="nm-command-panel nm-growth-panel">
+          <PanelHeading
+            eyebrow="PERFORMANCE"
+            title="Growth intelligence"
+            icon={TrendingUp}
+          />
+
+          <div className="nm-growth-number">
+            <strong>{growthValue}</strong>
+
+            {growthValue !== "--" && (
+              <span>/ 100</span>
+            )}
+          </div>
+
+          <div className="nm-growth-bar">
+            <span
+              style={{
+                width: growthBarWidth,
+              }}
+            />
+          </div>
+
+          <p className="nm-panel-description">
+            {growthScore?.summary ||
+              "Connect your creator platform to generate a personalized growth score."}
+          </p>
+
+          <button
+            type="button"
+            className="nm-panel-action"
+            onClick={() =>
+              navigate("/app/growth")
+            }
+          >
+            Explore growth
+            <ArrowUpRight size={14} />
+          </button>
+        </div>
+
+        <div className="nm-command-panel">
+          <PanelHeading
+            eyebrow="AI BRAIN"
+            title="Latest intelligence"
+            icon={BrainCircuit}
+          />
+
+          {insightList.length > 0 ? (
+            <div className="nm-insight-list">
+              {insightList
+                .slice(0, 3)
+                .map((insight, index) => {
+                  const text =
+                    typeof insight ===
+                    "string"
+                      ? insight
+                      : insight?.message ||
+                        insight?.title ||
+                        JSON.stringify(
+                          insight
+                        );
+
+                  return (
+                    <div
+                      className="nm-insight-row"
+                      key={index}
+                    >
+                      <div className="nm-insight-index">
+                        0{index + 1}
+                      </div>
+
+                      <p>{text}</p>
+
+                      <ArrowUpRight
+                        size={14}
+                      />
+                    </div>
+                  );
+                })}
+            </div>
+          ) : (
+            <div className="nm-empty-intelligence">
+              <BrainCircuit size={28} />
+
+              <strong>
+                Intelligence waiting
+              </strong>
+
+              <span>
+                More performance data will
+                unlock deeper recommendations.
+              </span>
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="nm-panel-action"
+            onClick={() =>
+              navigate("/app/intelligence")
+            }
+          >
+            Open intelligence
+            <ArrowUpRight size={14} />
+          </button>
+        </div>
+      </section>
+
+      <section className="nm-lower-grid">
+        <div className="nm-command-panel">
+          <PanelHeading
+            eyebrow="ACTIVITY"
+            title="Recent production"
+            icon={Play}
+          />
+
+          {videos.length > 0 ? (
+            <div className="nm-video-list">
+              {videos
+                .slice(0, 4)
+                .map((video, index) => (
+                  <div
+                    className="nm-video-row"
+                    key={
+                      video.id ||
+                      video.video_id ||
+                      index
+                    }
+                  >
+                    <div className="nm-video-index">
+                      0{index + 1}
+                    </div>
+
+                    <div className="nm-video-thumb">
+                      <Play size={12} />
+                    </div>
+
+                    <div className="nm-video-info">
+                      <strong>
+                        {video.title ||
+                          video.name ||
+                          "Untitled video"}
+                      </strong>
+
+                      <span>
+                        {video.views != null
+                          ? String(
+                              video.views
+                            ) + " views"
+                          : "Content indexed"}
+                      </span>
+                    </div>
+
+                    <ChevronRight size={15} />
+                  </div>
+                ))}
+            </div>
+          ) : (
+            <div className="nm-empty-production">
+              <Clapperboard size={28} />
+
+              <strong>
+                No production activity
+              </strong>
+
+              <span>
+                Start your first piece of
+                content with N1MOX30.
+              </span>
+
+              <button
+                type="button"
+                onClick={() =>
+                  navigate("/app/create")
+                }
+              >
+                Create something
+                <ArrowUpRight size={14} />
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="nm-command-panel nm-schedule-panel">
+          <PanelHeading
+            eyebrow="OPERATIONS"
+            title="Today's workspace"
+            icon={CalendarDays}
+          />
+
+          <div className="nm-operation-status">
+            <div className="nm-operation-ring">
+              <span>0</span>
+            </div>
+
+            <div>
+              <strong>
+                No active runs
+              </strong>
+
+              <span>
+                Your automation queue is clear.
+              </span>
+            </div>
+          </div>
+
+          <div className="nm-operation-actions">
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/app/daily")
+              }
+            >
+              Daily workspace
+              <ArrowUpRight size={14} />
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                navigate("/app/schedules")
+              }
+            >
+              View scheduler
+              <ArrowUpRight size={14} />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="nm-dashboard-footer">
+        <div>
+          <span className="nm-system-status-dot" />
+          N1MOX ENGINE OPERATIONAL
+        </div>
+
+        <span>
+          INTELLIGENCE · AUTOMATION · CREATION
+        </span>
+
+        <span>
+          N1MOX30 / 2026
+        </span>
+      </section>
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  value,
+  suffix = "",
+  description,
+  icon: Icon,
+  accent = false,
+}) {
+  return (
+    <article
+      className={
+        "nm-metric-card" +
+        (accent ? " accent" : "")
+      }
+    >
+      <div className="nm-metric-top">
+        <span>{label}</span>
+        <Icon size={16} />
+      </div>
+
+      <div className="nm-metric-value">
+        <strong>{value}</strong>
+
+        {suffix && (
+          <span>{suffix}</span>
+        )}
+      </div>
+
+      <p>{description}</p>
+
+      <div className="nm-metric-line" />
+    </article>
+  );
+}
+
+function PanelHeading({
+  eyebrow,
+  title,
+  icon: Icon,
+}) {
+  return (
+    <div className="nm-panel-heading">
+      <div>
+        <span>{eyebrow}</span>
+        <h3>{title}</h3>
+      </div>
+
+      <Icon size={18} />
+    </div>
+  );
+}
+
+export default Dashboard;
+
+===== MAIN.CSS =====
+/* N1MOX30 production foundation */
+html { scroll-behavior: smooth; }
+:focus-visible { outline: 2px solid #9bbcff; outline-offset: 3px; }
+button, a, input, textarea, select { font: inherit; }
+.nm-skip { position:fixed; left:16px; top:-80px; z-index:10000; padding:10px 14px; border-radius:10px; background:#fff; color:#080a0d; font-weight:700; transition:top .2s ease; }
+.nm-skip:focus { top:16px; }
+.nm-help-float,.nm-top-button { position:fixed; z-index:900; border:1px solid rgba(255,255,255,.12); background:rgba(14,16,20,.92); color:#fff; box-shadow:0 12px 40px rgba(0,0,0,.24); backdrop-filter:blur(16px); }
+.nm-help-float { right:22px; bottom:22px; display:flex; align-items:center; gap:8px; padding:11px 14px; border-radius:999px; text-decoration:none; }
+.nm-top-button { right:22px; bottom:76px; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; cursor:pointer; }
+.nm-cookie { position:fixed; z-index:9500; left:20px; right:20px; bottom:20px; max-width:1050px; margin:auto; display:flex; justify-content:space-between; gap:24px; padding:18px 20px; border:1px solid rgba(255,255,255,.13); border-radius:18px; background:rgba(15,17,21,.96); color:#fff; box-shadow:0 24px 80px rgba(0,0,0,.4); }
+.nm-cookie p { margin:5px 0 0; max-width:700px; color:#b7bcc7; line-height:1.5; font-size:14px; }
+.nm-cookie-actions { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.nm-cookie button,.nm-cookie a { border:1px solid rgba(255,255,255,.15); background:transparent; color:#fff; padding:9px 12px; border-radius:10px; text-decoration:none; cursor:pointer; }
+.nm-cookie button.primary { background:#fff; color:#080a0d; border-color:#fff; font-weight:700; }
+.nm-public-shell { min-height:100vh; background:#090b0e; color:#f4f6f8; padding:24px; }
+.nm-public-top { max-width:1160px; margin:auto; display:flex; justify-content:space-between; align-items:center; }
+.nm-public-back,.nm-public-app { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+.nm-public-app { opacity:.75; }
+.nm-public-content { max-width:900px; margin:90px auto 120px; }
+.nm-public-eyebrow { letter-spacing:.12em; text-transform:uppercase; font-size:12px; color:#9aa3b2; font-weight:700; margin-bottom:14px; }
+.nm-public-content h1 { font-size:clamp(42px,7vw,76px); line-height:.98; letter-spacing:-.055em; margin:0 0 24px; }
+.nm-public-content h2 { font-size:22px; margin:42px 0 10px; letter-spacing:-.02em; }
+.nm-public-content p,.nm-public-content li { color:#aeb6c3; line-height:1.7; font-size:17px; }
+.nm-public-lead { font-size:21px !important; max-width:760px; }
+.nm-public-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:38px; }
+.nm-public-card { border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:24px; background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018)); }
+.nm-public-card h2 { margin-top:12px; }
+.nm-public-card svg { opacity:.7; }
+.nm-public-card a { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:5px; margin-top:8px; }
+.nm-public-actions { display:flex; gap:14px; align-items:center; margin-top:28px; }
+.nm-public-button { display:inline-flex; align-items:center; justify-content:center; padding:12px 16px; border-radius:11px; background:#fff; color:#080a0d; text-decoration:none; font-weight:750; }
+.nm-public-link { color:#fff; text-decoration:none; }
+.nm-public-callout { margin-top:38px; padding:18px 20px; border-left:2px solid #8daeff; background:rgba(141,174,255,.06); color:#c2c9d5; line-height:1.6; }
+@media (max-width:700px) {
+  .nm-public-shell { padding:18px; }
+  .nm-public-content { margin:65px auto 90px; }
+  .nm-public-grid { grid-template-columns:1fr; }
+  .nm-cookie { left:10px; right:10px; bottom:10px; flex-direction:column; gap:12px; }
+  .nm-help-float { right:14px; bottom:14px; }
+  .nm-top-button { right:14px; bottom:68px; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
+.nm-pricing-page{min-height:100vh;background:#090b0e;color:#f4f6f8;padding:24px}
+.nm-pricing-top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+.nm-pricing-back{color:#fff;text-decoration:none}
+.nm-currency{display:flex;align-items:center;gap:10px;color:#aeb6c3;font-size:13px}
+.nm-currency select{background:#12151a;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 11px}
+.nm-pricing-hero{max-width:900px;margin:100px auto 45px}
+.nm-pricing-hero h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.055em;margin:12px 0 22px}
+.nm-pricing-hero p{color:#aeb6c3;max-width:760px;line-height:1.65;font-size:18px}
+.nm-plan-grid{max-width:1180px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.nm-plan-card{position:relative;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));transition:transform .25s ease,border-color .25s ease}
+.nm-plan-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.24)}
+.nm-plan-card.featured{border-color:rgba(155,188,255,.55)}
+.nm-plan-badge{position:absolute;right:18px;top:18px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#bcd0ff}
+.nm-plan-card h2{font-size:25px;margin:0 0 10px}
+.nm-plan-card p{min-height:52px;color:#9ea7b5;line-height:1.5}
+.nm-plan-price{font-size:40px;font-weight:800;letter-spacing:-.04em;margin:25px 0}
+.nm-plan-price small{font-size:13px;color:#8f98a7;font-weight:500;margin-left:5px}
+.nm-plan-card ul{list-style:none;padding:0;margin:0 0 25px;display:grid;gap:11px}
+.nm-plan-card li{display:flex;align-items:center;gap:9px;color:#c1c8d2;font-size:14px}
+.nm-plan-cta{display:flex;justify-content:center;padding:12px;border-radius:11px;background:#fff;color:#080a0d;text-decoration:none;font-weight:750}
+.nm-billing-trust{max-width:1180px;margin:22px auto 0;display:flex;gap:9px;align-items:center;color:#9ca6b5;font-size:13px}
+.nm-pricing-note{max-width:1180px;margin:20px auto 80px;color:#747e8d;font-size:13px;display:flex;align-items:center;gap:5px}
+@media(max-width:900px){.nm-plan-grid{grid-template-columns:1fr}.nm-pricing-hero{margin-top:70px}.nm-plan-card p{min-height:0}}
+@media(prefers-reduced-motion:reduce){.nm-plan-card{transition:none}.nm-plan-card:hover{transform:none}}
+
+===== PREMIUM-UI.CSS =====
+/* N1MOX30 — Batch 2 Premium UI
+   Original product-grade visual layer. No new dependencies.
+*/
+:root{
+  --nm-black:#08090b;
+  --nm-ink:#101216;
+  --nm-panel:#111318;
+  --nm-panel-2:#151820;
+  --nm-line:rgba(255,255,255,.085);
+  --nm-line-strong:rgba(255,255,255,.14);
+  --nm-text:#f4f6f8;
+  --nm-muted:#9aa1ad;
+  --nm-soft:#c8cdd5;
+  --nm-accent:#8b7cff;
+  --nm-accent-2:#b6aaff;
+  --nm-success:#63d7a2;
+  --nm-warning:#f4c76b;
+  --nm-danger:#ff7e88;
+  --nm-radius:18px;
+  --nm-shadow:0 24px 70px rgba(0,0,0,.28);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(900px 520px at 75% -10%,rgba(139,124,255,.09),transparent 62%),
+    var(--nm-black);
+}
+::selection{background:rgba(139,124,255,.32);color:#fff}
+
+.nm-premium-surface{
+  border:1px solid var(--nm-line);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  box-shadow:var(--nm-shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-radius:var(--nm-radius);
+}
+
+.nm-premium-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--nm-line);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease,background .24s ease;
+}
+.nm-premium-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(139,124,255,.07),transparent 36%);
+  opacity:0;
+  transition:opacity .24s ease;
+}
+.nm-premium-card:hover{
+  transform:translateY(-2px);
+  border-color:var(--nm-line-strong);
+  box-shadow:0 18px 50px rgba(0,0,0,.22);
+}
+.nm-premium-card:hover::before{opacity:1}
+
+.nm-kicker{
+  color:var(--nm-accent-2);
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.nm-muted{color:var(--nm-muted)}
+.nm-soft{color:var(--nm-soft)}
+
+.nm-gradient-text{
+  background:linear-gradient(110deg,#fff 10%,#c9c2ff 52%,#9182ff 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.nm-glow{
+  box-shadow:0 0 0 1px rgba(139,124,255,.14),0 0 48px rgba(139,124,255,.12);
+}
+
+.nm-button-premium{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+.nm-button-premium::after{
+  content:"";
+  position:absolute;
+  inset:-80% -20%;
+  background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);
+  transform:translateX(-70%) rotate(8deg);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+.nm-button-premium:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.04);
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+}
+.nm-button-premium:hover::after{transform:translateX(70%) rotate(8deg)}
+.nm-button-premium:active{transform:translateY(0)}
+
+.nm-focus-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:2px solid var(--nm-accent);
+  outline-offset:3px;
+}
+
+.nm-skeleton{
+  position:relative;
+  overflow:hidden;
+  background:rgba(255,255,255,.065);
+  border-radius:10px;
+}
+.nm-skeleton::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);
+  animation:nm-shimmer 1.45s infinite;
+}
+@keyframes nm-shimmer{100%{transform:translateX(100%)}}
+
+.nm-pulse-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--nm-success);
+  box-shadow:0 0 0 5px rgba(99,215,162,.1);
+  animation:nm-pulse 2s ease-in-out infinite;
+}
+@keyframes nm-pulse{50%{box-shadow:0 0 0 8px rgba(99,215,162,0)}}
+
+.nm-workflow{
+  display:flex;
+  align-items:center;
+  gap:0;
+}
+.nm-workflow-step{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+.nm-workflow-node{
+  display:grid;
+  place-items:center;
+  width:34px;height:34px;
+  border-radius:50%;
+  border:1px solid var(--nm-line-strong);
+  background:var(--nm-panel);
+  color:var(--nm-soft);
+  font-size:.72rem;
+  font-weight:700;
+  transition:all .22s ease;
+}
+.nm-workflow-node[data-active="true"]{
+  border-color:rgba(139,124,255,.65);
+  background:rgba(139,124,255,.12);
+  color:#fff;
+  box-shadow:0 0 24px rgba(139,124,255,.18);
+}
+.nm-workflow-line{
+  width:42px;height:1px;
+  background:linear-gradient(90deg,var(--nm-line-strong),var(--nm-line));
+}
+
+.nm-command-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  padding:7px 12px;
+  border:1px solid var(--nm-line);
+  border-radius:13px;
+  background:rgba(255,255,255,.028);
+}
+.nm-command-bar:focus-within{
+  border-color:rgba(139,124,255,.48);
+  box-shadow:0 0 0 3px rgba(139,124,255,.08);
+}
+
+.nm-divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--nm-line),transparent);
+}
+
+.nm-status{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid var(--nm-line);
+  background:rgba(255,255,255,.025);
+  color:var(--nm-soft);
+  font-size:.72rem;
+  font-weight:600;
+}
+.nm-status-success{border-color:rgba(99,215,162,.2);color:#9de9c5}
+.nm-status-warning{border-color:rgba(244,199,107,.2);color:#f6d997}
+.nm-status-danger{border-color:rgba(255,126,136,.2);color:#ffb2b9}
+
+.nm-page-enter{
+  animation:nm-page-in .42s cubic-bezier(.22,.75,.24,1) both;
+}
+@keyframes nm-page-in{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.nm-fade-up{
+  animation:nm-fade-up .55s cubic-bezier(.22,.75,.24,1) both;
+}
+@keyframes nm-fade-up{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media (max-width:760px){
+  .nm-workflow{overflow-x:auto;padding-bottom:6px}
+  .nm-workflow-line{width:24px;min-width:24px}
+  .nm-workflow-node{width:30px;height:30px}
+  .nm-premium-card{border-radius:15px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+}
+
+===== ROUTE REFERENCES =====
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\components\Header.jsx:63 onClick={() => navigate("/app/assistant")}
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\components\Header.jsx:73 onClick={() => navigate("/app/notifications")}
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\components\Header.jsx:82 onClick={() => navigate("/app/create")}
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:231 navigate("/app/accounts")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:285 navigate("/app/create")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:302 navigate("/app/assistant")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:313 navigate("/app/research")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:324 navigate("/app/workflows")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:365 navigate("/app/youtube")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:376 navigate("/app/accounts")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:470 navigate("/app/workflows")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:546 navigate("/app/growth")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:613 navigate("/app/intelligence")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:687 navigate("/app/create")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:724 navigate("/app/daily")
+C:\Users\moham\OneDrive\Desktop\N1MOX30_launch_candidate_test4_2_BEDROCK_FAILOVER_FIXED\N1MOX30_final_test3\frontend\src\pages\Dashboard.jsx:734 navigate("/app/schedules")

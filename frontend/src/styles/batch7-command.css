@@ -1,0 +1,264 @@
+/* ==========================================================
+   N1MOX30 — Batch 7 Command Layer
+   ========================================================== */
+
+.nm-assistant-page {
+  width: 100%;
+  max-width: 1480px;
+  margin: 0 auto;
+}
+
+.nm-assistant-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.08));
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+}
+
+.nm-assistant-command-card,
+.nm-assistant-result {
+  position: relative;
+  overflow: hidden;
+  margin-top: 24px;
+  padding: 28px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.08));
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(124,92,255,.12),
+      transparent 34%
+    ),
+    rgba(255,255,255,.025);
+  box-shadow: 0 24px 80px rgba(0,0,0,.16);
+}
+
+.nm-assistant-orb {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 20px;
+  border-radius: 17px;
+  background: linear-gradient(
+    135deg,
+    rgba(124,92,255,.3),
+    rgba(70,150,255,.16)
+  );
+  border: 1px solid rgba(124,92,255,.28);
+}
+
+.nm-assistant-command-copy h2 {
+  margin: 5px 0 7px;
+}
+
+.nm-assistant-command-copy p {
+  margin: 0 0 22px;
+  opacity: .7;
+}
+
+.nm-assistant-form textarea {
+  width: 100%;
+  min-height: 100px;
+  resize: vertical;
+  padding: 17px 18px;
+  border-radius: 15px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.09));
+  background: rgba(0,0,0,.16);
+  color: inherit;
+  font: inherit;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.nm-assistant-form textarea:focus {
+  border-color: rgba(124,92,255,.55);
+  box-shadow: 0 0 0 4px rgba(124,92,255,.08);
+}
+
+.nm-assistant-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.nm-assistant-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  opacity: .7;
+  font-size: 12px;
+}
+
+.nm-assistant-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.nm-assistant-suggestions button {
+  padding: 8px 11px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.08));
+  border-radius: 999px;
+  background: rgba(255,255,255,.025);
+  color: inherit;
+  cursor: pointer;
+  font-size: 12px;
+  transition: transform .2s, border-color .2s, background .2s;
+}
+
+.nm-assistant-suggestions button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(124,92,255,.4);
+  background: rgba(124,92,255,.08);
+}
+
+.nm-assistant-result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.nm-assistant-result-header h2 {
+  margin: 5px 0;
+}
+
+.nm-assistant-result-header p {
+  margin: 0;
+  opacity: .62;
+}
+
+.nm-assistant-progress {
+  margin-top: 28px;
+}
+
+.nm-assistant-progress > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.nm-assistant-stage-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 20px;
+}
+
+.nm-assistant-stage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 62px;
+  padding: 12px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.07));
+  border-radius: 13px;
+  background: rgba(255,255,255,.02);
+}
+
+.nm-assistant-stage.is-completed {
+  border-color: rgba(70,210,150,.25);
+}
+
+.nm-assistant-stage.is-running {
+  border-color: rgba(124,92,255,.4);
+}
+
+.nm-assistant-stage.is-failed {
+  border-color: rgba(255,90,90,.4);
+}
+
+.nm-assistant-stage strong,
+.nm-assistant-stage span {
+  display: block;
+}
+
+.nm-assistant-stage strong {
+  font-size: 12px;
+}
+
+.nm-assistant-stage span {
+  margin-top: 3px;
+  font-size: 10px;
+  opacity: .55;
+  text-transform: uppercase;
+}
+
+.nm-assistant-result-footer {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 20px;
+  padding-top: 17px;
+  border-top: 1px solid var(--n1-border, rgba(255,255,255,.07));
+  font-size: 11px;
+  opacity: .62;
+}
+
+.nm-assistant-result-footer code {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nm-assistant-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.nm-assistant-info-grid article {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 20px;
+  border: 1px solid var(--n1-border, rgba(255,255,255,.07));
+  border-radius: 17px;
+  background: rgba(255,255,255,.02);
+}
+
+.nm-assistant-info-grid strong {
+  font-size: 13px;
+}
+
+.nm-assistant-info-grid span {
+  font-size: 12px;
+  opacity: .58;
+}
+
+@media (max-width: 800px) {
+  .nm-assistant-command-card,
+  .nm-assistant-result {
+    padding: 19px;
+    border-radius: 17px;
+  }
+
+  .nm-assistant-form-footer,
+  .nm-assistant-result-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .nm-assistant-stage-grid,
+  .nm-assistant-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-assistant-suggestions button,
+  .nm-assistant-form textarea {
+    transition: none;
+  }
+}

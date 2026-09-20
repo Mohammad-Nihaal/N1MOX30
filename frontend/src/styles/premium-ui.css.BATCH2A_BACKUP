@@ -1,0 +1,241 @@
+/* N1MOX30 — Batch 2 Premium UI
+   Original product-grade visual layer. No new dependencies.
+*/
+:root{
+  --nm-black:#08090b;
+  --nm-ink:#101216;
+  --nm-panel:#111318;
+  --nm-panel-2:#151820;
+  --nm-line:rgba(255,255,255,.085);
+  --nm-line-strong:rgba(255,255,255,.14);
+  --nm-text:#f4f6f8;
+  --nm-muted:#9aa1ad;
+  --nm-soft:#c8cdd5;
+  --nm-accent:#8b7cff;
+  --nm-accent-2:#b6aaff;
+  --nm-success:#63d7a2;
+  --nm-warning:#f4c76b;
+  --nm-danger:#ff7e88;
+  --nm-radius:18px;
+  --nm-shadow:0 24px 70px rgba(0,0,0,.28);
+}
+
+html{scroll-behavior:smooth}
+body{
+  background:
+    radial-gradient(900px 520px at 75% -10%,rgba(139,124,255,.09),transparent 62%),
+    var(--nm-black);
+}
+::selection{background:rgba(139,124,255,.32);color:#fff}
+
+.nm-premium-surface{
+  border:1px solid var(--nm-line);
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));
+  box-shadow:var(--nm-shadow);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  border-radius:var(--nm-radius);
+}
+
+.nm-premium-card{
+  position:relative;
+  overflow:hidden;
+  border:1px solid var(--nm-line);
+  border-radius:18px;
+  background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));
+  transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease,background .24s ease;
+}
+.nm-premium-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(120deg,rgba(139,124,255,.07),transparent 36%);
+  opacity:0;
+  transition:opacity .24s ease;
+}
+.nm-premium-card:hover{
+  transform:translateY(-2px);
+  border-color:var(--nm-line-strong);
+  box-shadow:0 18px 50px rgba(0,0,0,.22);
+}
+.nm-premium-card:hover::before{opacity:1}
+
+.nm-kicker{
+  color:var(--nm-accent-2);
+  font-size:.68rem;
+  font-weight:700;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.nm-muted{color:var(--nm-muted)}
+.nm-soft{color:var(--nm-soft)}
+
+.nm-gradient-text{
+  background:linear-gradient(110deg,#fff 10%,#c9c2ff 52%,#9182ff 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.nm-glow{
+  box-shadow:0 0 0 1px rgba(139,124,255,.14),0 0 48px rgba(139,124,255,.12);
+}
+
+.nm-button-premium{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
+}
+.nm-button-premium::after{
+  content:"";
+  position:absolute;
+  inset:-80% -20%;
+  background:linear-gradient(110deg,transparent 42%,rgba(255,255,255,.16) 50%,transparent 58%);
+  transform:translateX(-70%) rotate(8deg);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+.nm-button-premium:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.04);
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+}
+.nm-button-premium:hover::after{transform:translateX(70%) rotate(8deg)}
+.nm-button-premium:active{transform:translateY(0)}
+
+.nm-focus-ring:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible{
+  outline:2px solid var(--nm-accent);
+  outline-offset:3px;
+}
+
+.nm-skeleton{
+  position:relative;
+  overflow:hidden;
+  background:rgba(255,255,255,.065);
+  border-radius:10px;
+}
+.nm-skeleton::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  transform:translateX(-100%);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.075),transparent);
+  animation:nm-shimmer 1.45s infinite;
+}
+@keyframes nm-shimmer{100%{transform:translateX(100%)}}
+
+.nm-pulse-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--nm-success);
+  box-shadow:0 0 0 5px rgba(99,215,162,.1);
+  animation:nm-pulse 2s ease-in-out infinite;
+}
+@keyframes nm-pulse{50%{box-shadow:0 0 0 8px rgba(99,215,162,0)}}
+
+.nm-workflow{
+  display:flex;
+  align-items:center;
+  gap:0;
+}
+.nm-workflow-step{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+.nm-workflow-node{
+  display:grid;
+  place-items:center;
+  width:34px;height:34px;
+  border-radius:50%;
+  border:1px solid var(--nm-line-strong);
+  background:var(--nm-panel);
+  color:var(--nm-soft);
+  font-size:.72rem;
+  font-weight:700;
+  transition:all .22s ease;
+}
+.nm-workflow-node[data-active="true"]{
+  border-color:rgba(139,124,255,.65);
+  background:rgba(139,124,255,.12);
+  color:#fff;
+  box-shadow:0 0 24px rgba(139,124,255,.18);
+}
+.nm-workflow-line{
+  width:42px;height:1px;
+  background:linear-gradient(90deg,var(--nm-line-strong),var(--nm-line));
+}
+
+.nm-command-bar{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:44px;
+  padding:7px 12px;
+  border:1px solid var(--nm-line);
+  border-radius:13px;
+  background:rgba(255,255,255,.028);
+}
+.nm-command-bar:focus-within{
+  border-color:rgba(139,124,255,.48);
+  box-shadow:0 0 0 3px rgba(139,124,255,.08);
+}
+
+.nm-divider{
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--nm-line),transparent);
+}
+
+.nm-status{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:5px 9px;
+  border-radius:999px;
+  border:1px solid var(--nm-line);
+  background:rgba(255,255,255,.025);
+  color:var(--nm-soft);
+  font-size:.72rem;
+  font-weight:600;
+}
+.nm-status-success{border-color:rgba(99,215,162,.2);color:#9de9c5}
+.nm-status-warning{border-color:rgba(244,199,107,.2);color:#f6d997}
+.nm-status-danger{border-color:rgba(255,126,136,.2);color:#ffb2b9}
+
+.nm-page-enter{
+  animation:nm-page-in .42s cubic-bezier(.22,.75,.24,1) both;
+}
+@keyframes nm-page-in{
+  from{opacity:0;transform:translateY(7px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+.nm-fade-up{
+  animation:nm-fade-up .55s cubic-bezier(.22,.75,.24,1) both;
+}
+@keyframes nm-fade-up{
+  from{opacity:0;transform:translateY(14px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@media (max-width:760px){
+  .nm-workflow{overflow-x:auto;padding-bottom:6px}
+  .nm-workflow-line{width:24px;min-width:24px}
+  .nm-workflow-node{width:30px;height:30px}
+  .nm-premium-card{border-radius:15px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:.001ms!important;
+  }
+}

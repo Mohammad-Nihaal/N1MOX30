@@ -1,0 +1,389 @@
+﻿from __future__ import annotations
+
+import re
+from typing import Any, Callable
+
+from app.core.config import settings
+from app.services.ai.bedrock_provider import bedrock_provider
+from app.services.ai.openclaw_provider import openclaw_provider
+
+
+Validator = Callable[[str], bool]
+
+
+class AIProviderRouter:
+    """
+    N1MOX30 central AI provider router.
+
+    auto:
+        primary -> fallback
+
+    Provider output is cleaned before validation.
+
+    Creator prompts are simplified before being sent to OpenClaw
+    so provider-routing instructions do not accidentally trigger
+    refusal / meta responses from the model.
+    """
+
+    def __init__(self) -> None:
+        self.providers = {
+            "bedrock": bedrock_provider,
+            "openclaw": openclaw_provider,
+        }
+
+    @staticmethod
+    def _clean_provider_output(text: Any) -> str:
+        if text is None:
+            return ""
+
+        text = str(text)
+
+        # ANSI terminal escape sequences
+        text = re.sub(
+            r"\x1B\[[0-?]*[ -/]*[@-~]",
+            "",
+            text,
+        )
+
+        cleaned_lines: list[str] = []
+
+        ignored = (
+            "[provider-transport-fetch]",
+            "[model-fetch]",
+            "[provider]",
+            "model.run via",
+            "provider:",
+            "model:",
+            "outputs:",
+            "thinking...",
+        )
+
+        for line in text.splitlines():
+            stripped = line.strip()
+
+            if not stripped:
+                continue
+
+            lower = stripped.lower()
+
+            if any(item in lower for item in ignored):
+                continue
+
+            if re.match(
+                r"^\d{2}:\d{2}:\d{2}\s+\[",
+                stripped,
+            ):
+                continue
+
+            cleaned_lines.append(stripped)
+
+        cleaned = "\n".join(cleaned_lines).strip()
+
+        replacements = {
+            "â€™": "'",
+            "â€˜": "'",
+            "â€œ": '"',
+            "â€": '"',
+            "â€“": "-",
+            "â€”": "-",
+            "â€¦": "...",
+            "Â": "",
+            "\u00a0": " ",
+        }
+
+        for old, new in replacements.items():
+            cleaned = cleaned.replace(old, new)
+
+        return cleaned.strip()
+
+    @staticmethod
+    def _prepare_prompt(prompt: str) -> str:
+        """
+        Simplify N1MOX30 creator-generation prompts.
+
+        This prevents a very long orchestration/instruction prompt
+        from being interpreted by some OpenClaw-routed models as
+        a meta/system-style request.
+
+        The generated output format remains unchanged.
+        """
+
+        text = prompt.strip()
+
+        # Only simplify prompts that clearly belong to creator
+        # generation. Other AI workflows remain untouched.
+        creator_markers = (
+            "TITLES:",
+            "SCRIPT:",
+            "CAPTION:",
+            "HASHTAGS:",
+        )
+
+        if not all(marker in text for marker in creator_markers):
+            return text
+
+        def extract(label: str, next_labels: tuple[str, ...]) -> str:
+            pattern = re.escape(label) + r"\s*(.*?)(?=\n(?:"
+            pattern += "|".join(re.escape(x) for x in next_labels)
+            pattern += r")|\Z)"
+
+            match = re.search(
+                pattern,
+                text,
+                flags=re.IGNORECASE | re.DOTALL,
+            )
+
+            return match.group(1).strip() if match else ""
+
+        platform = ""
+        topic = ""
+        content_type = ""
+        tone = ""
+        channel = ""
+
+        patterns = {
+            "platform": r"Platform:\s*(.+)",
+            "topic": r"Topic:\s*(.+)",
+            "content_type": r"Content type:\s*(.+)",
+            "tone": r"Tone:\s*(.+)",
+            "channel": r"Creator channel:\s*(.+)",
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(
+                pattern,
+                text,
+                flags=re.IGNORECASE,
+            )
+
+            if match:
+                value = match.group(1).strip()
+
+                if key == "platform":
+                    platform = value
+                elif key == "topic":
+                    topic = value
+                elif key == "content_type":
+                    content_type = value
+                elif key == "tone":
+                    tone = value
+                elif key == "channel":
+                    channel = value
+
+        # If we couldn't extract a topic, don't modify the prompt.
+        if not topic:
+            return text
+
+        return f"""
+Create professional, ready-to-use creator content.
+
+Platform: {platform or "YouTube"}
+Topic: {topic}
+Content type: {content_type or "video"}
+Tone: {tone or "engaging"}
+Creator channel: {channel or "Not connected"}
+
+Use the topic exactly as provided.
+Do not ask questions.
+Do not introduce yourself.
+Do not discuss instructions, models, providers, routing, metadata, or internal processes.
+
+Return ONLY these four sections in exactly this order:
+
+TITLES:
+1. A strong specific title
+2. A strong specific title
+3. A strong specific title
+4. A strong specific title
+5. A strong specific title
+
+SCRIPT:
+Write the complete usable script about the topic.
+
+CAPTION:
+Write a platform-appropriate caption.
+
+HASHTAGS:
+#tag1 #tag2 #tag3 #tag4 #tag5
+""".strip()
+
+    def generate(
+        self,
+        *,
+        prompt: str,
+        temperature: float = 0.7,
+        validator: Validator | None = None,
+    ) -> dict[str, Any]:
+
+        if not prompt or not prompt.strip():
+            raise ValueError("AI prompt cannot be empty.")
+
+        mode = (
+            getattr(settings, "ai_provider", "auto")
+            or "auto"
+        ).lower().strip()
+
+        if mode == "demo":
+            raise RuntimeError(
+                "Demo mode does not use an external AI provider."
+            )
+
+        if mode in {"bedrock", "openclaw"}:
+            return self._generate_with_provider(
+                mode,
+                prompt=prompt,
+                temperature=temperature,
+                validator=validator,
+                attempted_providers=[mode],
+                fallback_used=False,
+            )
+
+        if mode != "auto":
+            raise ValueError(
+                f"Unsupported router mode: {mode}"
+            )
+
+        return self._generate_auto(
+            prompt=prompt,
+            temperature=temperature,
+            validator=validator,
+        )
+
+    def _generate_auto(
+        self,
+        *,
+        prompt: str,
+        temperature: float,
+        validator: Validator | None,
+    ) -> dict[str, Any]:
+
+        providers = self._get_auto_route()
+
+        errors: list[str] = []
+        attempted: list[str] = []
+
+        for provider_name in providers:
+            attempted.append(provider_name)
+
+            try:
+                return self._generate_with_provider(
+                    provider_name,
+                    prompt=prompt,
+                    temperature=temperature,
+                    validator=validator,
+                    attempted_providers=list(attempted),
+                    fallback_used=len(attempted) > 1,
+                )
+
+            except Exception as exc:
+                errors.append(
+                    f"{provider_name}: {exc}"
+                )
+
+        raise RuntimeError(
+            "All AI providers failed. "
+            + " | ".join(errors)
+        )
+
+    def _get_auto_route(self) -> list[str]:
+
+        primary = (
+            getattr(
+                settings,
+                "ai_primary_provider",
+                "",
+            )
+            or ""
+        ).lower().strip()
+
+        fallback = (
+            getattr(
+                settings,
+                "ai_fallback_provider",
+                "",
+            )
+            or ""
+        ).lower().strip()
+
+        route: list[str] = []
+
+        for provider_name in (
+            primary,
+            fallback,
+        ):
+            if (
+                provider_name
+                and provider_name in self.providers
+                and provider_name not in route
+            ):
+                route.append(provider_name)
+
+        if not route:
+            raise RuntimeError(
+                "No valid AI providers are configured "
+                "for automatic routing."
+            )
+
+        return route
+
+    def _generate_with_provider(
+        self,
+        provider_name: str,
+        *,
+        prompt: str,
+        temperature: float,
+        validator: Validator | None,
+        attempted_providers: list[str],
+        fallback_used: bool,
+    ) -> dict[str, Any]:
+
+        provider = self.providers.get(provider_name)
+
+        if provider is None:
+            raise ValueError(
+                f"Unknown AI provider: {provider_name}"
+            )
+
+        if not provider.is_available():
+            raise RuntimeError(
+                f"Provider '{provider_name}' is not available."
+            )
+
+        prepared_prompt = self._prepare_prompt(prompt)
+
+        raw_text = provider.generate(
+            prompt=prepared_prompt,
+            temperature=temperature,
+        )
+
+        text = self._clean_provider_output(raw_text)
+
+        if not text:
+            raise RuntimeError(
+                f"Provider '{provider_name}' returned empty output."
+            )
+
+        if validator is not None:
+            try:
+                valid = bool(validator(text))
+            except Exception as exc:
+                raise RuntimeError(
+                    f"Validator failed for provider "
+                    f"'{provider_name}': {exc}"
+                ) from exc
+
+            if not valid:
+                raise RuntimeError(
+                    f"Provider '{provider_name}' "
+                    "returned unusable structured output."
+                )
+
+        return {
+            "provider": provider_name,
+            "text": text,
+            "attempted_providers": attempted_providers,
+            "fallback_used": fallback_used,
+        }
+
+
+ai_provider_router = AIProviderRouter()

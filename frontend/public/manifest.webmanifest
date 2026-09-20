@@ -1,0 +1,9 @@
+{
+  "name":"N1MOX30 Creator Operating System",
+  "short_name":"N1MOX30",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#090b10",
+  "theme_color":"#090b10",
+  "description":"AI-powered creator automation, intelligence, production and publishing."
+}

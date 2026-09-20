@@ -1,0 +1,764 @@
+/* ============================================================
+   N1MOX30 — BATCH 6
+   MOTION + INTERACTION
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   Motion tokens
+   ------------------------------------------------------------ */
+
+:root {
+  --nm-motion-fast: 140ms;
+  --nm-motion-normal: 220ms;
+  --nm-motion-smooth: 360ms;
+  --nm-motion-slow: 620ms;
+
+  --nm-ease-out: cubic-bezier(.16,1,.3,1);
+  --nm-ease-in-out: cubic-bezier(.65,0,.35,1);
+  --nm-ease-soft: cubic-bezier(.22,1,.36,1);
+}
+
+/* ------------------------------------------------------------
+   Global interaction baseline
+   ------------------------------------------------------------ */
+
+html {
+  scroll-behavior: smooth;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role="button"] {
+  transition:
+    transform var(--nm-motion-normal) var(--nm-ease-out),
+    opacity var(--nm-motion-normal) ease,
+    background-color var(--nm-motion-normal) ease,
+    border-color var(--nm-motion-normal) ease,
+    color var(--nm-motion-normal) ease,
+    box-shadow var(--nm-motion-normal) var(--nm-ease-out);
+}
+
+/* ------------------------------------------------------------
+   Page entrance
+   ------------------------------------------------------------ */
+
+.page-content,
+.nm-dashboard,
+.nm-production-page,
+.nm-ai-layout,
+.nm-create-layout,
+.nm-workflow-page,
+.nm-workflows-page,
+.analytics-page,
+.growth-page,
+.youtube-page,
+.accounts-page,
+.settings-page,
+.assistant-page,
+.notifications-page,
+.schedules-page,
+.publishing-page,
+.intelligence-page,
+.research-page {
+  animation:
+    nm-page-enter var(--nm-motion-smooth) var(--nm-ease-out) both;
+}
+
+@keyframes nm-page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* ------------------------------------------------------------
+   Dashboard command center
+   ------------------------------------------------------------ */
+
+.nm-dashboard-header {
+  animation:
+    nm-dashboard-header-in 700ms var(--nm-ease-out) both;
+}
+
+@keyframes nm-dashboard-header-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.nm-dashboard-kicker {
+  animation:
+    nm-fade-in 500ms ease both;
+}
+
+.nm-dashboard-header h1 {
+  animation:
+    nm-title-in 800ms var(--nm-ease-out) 60ms both;
+}
+
+.nm-dashboard-header p {
+  animation:
+    nm-fade-in 600ms ease 160ms both;
+}
+
+@keyframes nm-title-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0);
+  }
+}
+
+@keyframes nm-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------
+   Command strip
+   ------------------------------------------------------------ */
+
+.nm-command-strip {
+  animation:
+    nm-command-in 650ms var(--nm-ease-out) 120ms both;
+}
+
+@keyframes nm-command-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+.nm-command-strip button {
+  position: relative;
+  overflow: hidden;
+}
+
+.nm-command-strip button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 25%,
+      rgba(255,255,255,.10) 48%,
+      transparent 70%
+    );
+  transform: translateX(-120%);
+  transition: transform 600ms var(--nm-ease-out);
+}
+
+.nm-command-strip button:hover::after {
+  transform: translateX(120%);
+}
+
+.nm-command-strip button:hover {
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   Dashboard cards / panels
+   ------------------------------------------------------------ */
+
+.nm-dashboard .panel,
+.nm-dashboard .stat-card,
+.nm-dashboard .nm-panel,
+.nm-dashboard .nm-dashboard-card,
+.nm-dashboard .nm-metric-card {
+  transition:
+    transform var(--nm-motion-smooth) var(--nm-ease-out),
+    border-color var(--nm-motion-normal) ease,
+    box-shadow var(--nm-motion-smooth) var(--nm-ease-out);
+}
+
+.nm-dashboard .panel:hover,
+.nm-dashboard .stat-card:hover,
+.nm-dashboard .nm-panel:hover,
+.nm-dashboard .nm-dashboard-card:hover,
+.nm-dashboard .nm-metric-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ------------------------------------------------------------
+   Generic premium cards
+   ------------------------------------------------------------ */
+
+.card,
+.panel,
+.surface,
+.workspace-card,
+.stat-card,
+.metric-card,
+.nm-card,
+.nm-panel,
+.nm-feature-card,
+.nm-workflow-card,
+.nm-create-option,
+.nm-ai-panel {
+  will-change: transform;
+}
+
+.card:hover,
+.panel:hover,
+.surface:hover,
+.workspace-card:hover,
+.stat-card:hover,
+.metric-card:hover,
+.nm-card:hover,
+.nm-panel:hover,
+.nm-feature-card:hover,
+.nm-workflow-card:hover,
+.nm-create-option:hover,
+.nm-ai-panel:hover {
+  transform: translateY(-2px);
+}
+
+/* ------------------------------------------------------------
+   Buttons
+   ------------------------------------------------------------ */
+
+button:not(:disabled):hover,
+.nm-command-button:hover,
+.nm-command-primary:hover,
+.nm-create-submit:hover,
+.auth-submit:hover,
+.primary-button:hover,
+.secondary-button:hover {
+  transform: translateY(-2px);
+}
+
+button:not(:disabled):active,
+.nm-command-button:active,
+.nm-command-primary:active,
+.nm-create-submit:active,
+.auth-submit:active,
+.primary-button:active,
+.secondary-button:active {
+  transform: translateY(0) scale(.985);
+}
+
+/* ------------------------------------------------------------
+   Header controls
+   ------------------------------------------------------------ */
+
+header button,
+.topbar button,
+.app-header button,
+.app-topbar button {
+  position: relative;
+}
+
+header button:hover svg,
+.topbar button:hover svg,
+.app-header button:hover svg,
+.app-topbar button:hover svg {
+  transform: scale(1.06);
+}
+
+header svg,
+.topbar svg,
+.app-header svg,
+.app-topbar svg {
+  transition: transform var(--nm-motion-normal) var(--nm-ease-out);
+}
+
+/* ------------------------------------------------------------
+   Sidebar interactions
+   ------------------------------------------------------------ */
+
+.sidebar a,
+.app-sidebar a,
+.dashboard-sidebar a,
+.nm-sidebar a {
+  position: relative;
+  transition:
+    transform var(--nm-motion-normal) var(--nm-ease-out),
+    background-color var(--nm-motion-normal) ease,
+    color var(--nm-motion-normal) ease;
+}
+
+.sidebar a:hover,
+.app-sidebar a:hover,
+.dashboard-sidebar a:hover,
+.nm-sidebar a:hover {
+  transform: translateX(3px);
+}
+
+.sidebar a svg,
+.app-sidebar a svg,
+.dashboard-sidebar a svg,
+.nm-sidebar a svg {
+  transition:
+    transform var(--nm-motion-normal) var(--nm-ease-out);
+}
+
+.sidebar a:hover svg,
+.app-sidebar a:hover svg,
+.dashboard-sidebar a:hover svg,
+.nm-sidebar a:hover svg {
+  transform: scale(1.06);
+}
+
+/* ------------------------------------------------------------
+   Workflow motion
+   ------------------------------------------------------------ */
+
+.nm-workflow-grid,
+.nm-workflows-grid {
+  perspective: 1200px;
+}
+
+.nm-workflow-card,
+.nm-workflow-node {
+  transition:
+    transform var(--nm-motion-smooth) var(--nm-ease-out),
+    border-color var(--nm-motion-normal) ease,
+    box-shadow var(--nm-motion-smooth) var(--nm-ease-out);
+}
+
+.nm-workflow-card:hover,
+.nm-workflow-node:hover {
+  transform:
+    translateY(-4px)
+    rotateX(.5deg);
+}
+
+.nm-workflow-card:nth-child(1) {
+  animation-delay: 40ms;
+}
+
+.nm-workflow-card:nth-child(2) {
+  animation-delay: 100ms;
+}
+
+.nm-workflow-card:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.nm-workflow-card:nth-child(4) {
+  animation-delay: 220ms;
+}
+
+.nm-workflow-card:nth-child(5) {
+  animation-delay: 280ms;
+}
+
+/* ------------------------------------------------------------
+   Production workflow nodes
+   ------------------------------------------------------------ */
+
+.nm-production-step,
+.nm-production-node,
+.nm-workflow-step {
+  position: relative;
+}
+
+.nm-production-step::after,
+.nm-production-node::after,
+.nm-workflow-step::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(
+      120deg,
+      transparent 20%,
+      rgba(168,255,47,.18),
+      transparent 80%
+    );
+  transition: opacity var(--nm-motion-normal) ease;
+}
+
+.nm-production-step:hover::after,
+.nm-production-node:hover::after,
+.nm-workflow-step:hover::after {
+  opacity: 1;
+}
+
+/* ------------------------------------------------------------
+   Create / AI Studio interactions
+   ------------------------------------------------------------ */
+
+.nm-create-option {
+  transition:
+    transform var(--nm-motion-normal) var(--nm-ease-out),
+    border-color var(--nm-motion-normal) ease,
+    background-color var(--nm-motion-normal) ease,
+    box-shadow var(--nm-motion-normal) var(--nm-ease-out);
+}
+
+.nm-create-option:hover {
+  transform: translateY(-3px);
+}
+
+.nm-create-option:active {
+  transform: translateY(-1px) scale(.99);
+}
+
+.nm-create-submit {
+  position: relative;
+  overflow: hidden;
+}
+
+.nm-create-submit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(
+      105deg,
+      transparent 25%,
+      rgba(255,255,255,.20) 50%,
+      transparent 75%
+    );
+  transform: translateX(-120%);
+  transition: transform 700ms var(--nm-ease-out);
+}
+
+.nm-create-submit:hover::after {
+  transform: translateX(120%);
+}
+
+/* ------------------------------------------------------------
+   Forms
+   ------------------------------------------------------------ */
+
+input,
+textarea,
+select {
+  transition:
+    border-color var(--nm-motion-normal) ease,
+    box-shadow var(--nm-motion-normal) var(--nm-ease-out),
+    background-color var(--nm-motion-normal) ease;
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: rgba(168,255,47,.28);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(168,255,47,.72);
+  box-shadow:
+    0 0 0 3px rgba(168,255,47,.09);
+}
+
+/* ------------------------------------------------------------
+   Notifications
+   ------------------------------------------------------------ */
+
+.notification-badge,
+.notification-dot,
+.has-notification::after {
+  animation:
+    nm-notification-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes nm-notification-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: .55;
+    transform: scale(1.15);
+  }
+}
+
+/* ------------------------------------------------------------
+   Loading states
+   ------------------------------------------------------------ */
+
+.nm-skeleton,
+.skeleton,
+.loading-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.nm-skeleton::after,
+.skeleton::after,
+.loading-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255,255,255,.08),
+      transparent
+    );
+  animation:
+    nm-skeleton 1.35s ease-in-out infinite;
+}
+
+@keyframes nm-skeleton {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+/* ------------------------------------------------------------
+   Loading spinner
+   ------------------------------------------------------------ */
+
+.spin {
+  animation:
+    nm-spin 850ms linear infinite;
+}
+
+@keyframes nm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------
+   Empty / success / error states
+   ------------------------------------------------------------ */
+
+.nm-empty-state,
+.nm-error-state,
+.nm-success-state,
+.auth-error,
+.page-error {
+  animation:
+    nm-state-enter 450ms var(--nm-ease-out) both;
+}
+
+@keyframes nm-state-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------------------
+   Status indicators
+   ------------------------------------------------------------ */
+
+.nm-live-dot,
+.nm-system-status-dot,
+.status-dot,
+.online-dot {
+  animation:
+    nm-status-pulse 2s ease-in-out infinite;
+}
+
+@keyframes nm-status-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(168,255,47,0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgba(168,255,47,.08);
+  }
+}
+
+/* ------------------------------------------------------------
+   Links
+   ------------------------------------------------------------ */
+
+a {
+  transition:
+    color var(--nm-motion-normal) ease,
+    opacity var(--nm-motion-normal) ease;
+}
+
+a:hover {
+  opacity: .86;
+}
+
+/* ------------------------------------------------------------
+   Table rows
+   ------------------------------------------------------------ */
+
+table tbody tr {
+  transition:
+    background-color var(--nm-motion-normal) ease,
+    transform var(--nm-motion-normal) var(--nm-ease-out);
+}
+
+table tbody tr:hover {
+  background: rgba(168,255,47,.025);
+}
+
+/* ------------------------------------------------------------
+   Tooltips using title attribute
+   ------------------------------------------------------------ */
+
+[title] {
+  cursor: help;
+}
+
+/* ------------------------------------------------------------
+   Focus accessibility
+   ------------------------------------------------------------ */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgba(168,255,47,.85);
+  outline-offset: 3px;
+}
+
+/* ------------------------------------------------------------
+   Light theme tuning
+   ------------------------------------------------------------ */
+
+html[data-n1mox-theme="light"] .nm-skeleton::after,
+html[data-n1mox-theme="light"] .skeleton::after,
+html[data-n1mox-theme="light"] .loading-skeleton::after {
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(0,0,0,.055),
+      transparent
+    );
+}
+
+html[data-n1mox-theme="light"] table tbody tr:hover {
+  background: rgba(50,80,0,.035);
+}
+
+/* ------------------------------------------------------------
+   Mobile
+   ------------------------------------------------------------ */
+
+@media (max-width: 900px) {
+
+  .nm-dashboard-header,
+  .nm-command-strip,
+  .nm-dashboard-card,
+  .nm-workflow-card {
+    animation-duration: 420ms;
+  }
+
+  .nm-command-strip button:hover,
+  .nm-workflow-card:hover,
+  .nm-create-option:hover,
+  .panel:hover,
+  .card:hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (max-width: 640px) {
+
+  .nm-dashboard-header h1 {
+    animation-duration: 500ms;
+  }
+
+  .nm-command-strip button::after,
+  .nm-create-submit::after {
+    display: none;
+  }
+
+  .nm-dashboard .panel:hover,
+  .nm-dashboard .stat-card:hover,
+  .nm-workflow-card:hover,
+  .nm-create-option:hover,
+  .card:hover,
+  .panel:hover {
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+   ------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .nm-dashboard-header,
+  .nm-dashboard-header h1,
+  .nm-dashboard-header p,
+  .nm-command-strip,
+  .page-content,
+  .nm-dashboard,
+  .nm-production-page,
+  .nm-ai-layout,
+  .nm-create-layout,
+  .nm-workflow-page,
+  .nm-workflows-page,
+  .analytics-page,
+  .growth-page,
+  .youtube-page {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+}

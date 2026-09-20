@@ -1,0 +1,15 @@
+# N1MOX30
+N1MOX30 is an AI-powered creator operating system for research, strategy, content creation, automation, analytics and publishing.
+
+## Public resources
+- /: Product overview
+- /about: Company and founder
+- /help: Creator help center
+- /contact: Support and business contact
+- /privacy: Privacy information
+- /terms: Terms and conditions
+- /cookies: Cookie information
+- /data-request: Data rights requests
+
+## Important
+Do not infer unpublished team members, contact addresses, pricing, legal entity details or product capabilities.

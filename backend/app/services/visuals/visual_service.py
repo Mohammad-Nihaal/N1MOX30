@@ -1,0 +1,1613 @@
+﻿from __future__ import annotations
+
+import re
+from typing import Any
+
+from app.services.visuals.local_asset_generator import LocalVisualAssetGenerator
+
+
+class VisualService:
+    """
+    N1MOX30 Visual Production Service.
+
+    Responsibilities:
+    - Convert completed Script output into a structured visual plan.
+    - Synchronize visual scenes with narration timing.
+    - Define visual types and B-roll requirements.
+    - Generate overlay/caption requirements.
+    - Keep provider integration abstract.
+    - Support YouTube long-form videos, Shorts, Instagram,
+      Reels and other creator workflows.
+    """
+
+    SUPPORTED_PROVIDERS = {
+        "demo",
+        "openai",
+        "google",
+        "runway",
+        "pika",
+        "veo",
+        "custom",
+    }
+
+    VISUAL_TYPES = {
+        "b_roll",
+        "generated_video",
+        "generated_image",
+        "stock_video",
+        "stock_image",
+        "screen_recording",
+        "motion_graphic",
+        "text_overlay",
+        "diagram",
+        "chart",
+        "talking_head",
+        "transition",
+    }
+
+    PLATFORM_FORMATS = {
+        "youtube": {
+            "aspect_ratio": "16:9",
+            "width": 1920,
+            "height": 1080,
+        },
+        "youtube_shorts": {
+            "aspect_ratio": "9:16",
+            "width": 1080,
+            "height": 1920,
+        },
+        "instagram": {
+            "aspect_ratio": "9:16",
+            "width": 1080,
+            "height": 1920,
+        },
+        "instagram_reels": {
+            "aspect_ratio": "9:16",
+            "width": 1080,
+            "height": 1920,
+        },
+        "instagram_feed": {
+            "aspect_ratio": "1:1",
+            "width": 1080,
+            "height": 1080,
+        },
+    }
+
+    def __init__(
+        self,
+        provider: str = "demo",
+    ) -> None:
+        provider = str(
+            provider or "demo"
+        ).strip().lower()
+
+        if provider not in self.SUPPORTED_PROVIDERS:
+            raise ValueError(
+                f"Unsupported visual provider: {provider}. "
+                f"Supported providers: "
+                f"{sorted(self.SUPPORTED_PROVIDERS)}"
+            )
+
+        self.provider = provider
+        self.local_asset_generator = LocalVisualAssetGenerator()
+
+    # ================================================================
+    # PUBLIC API
+    # ================================================================
+
+    def generate_visual_plan(
+        self,
+        topic: str,
+        platform: str,
+        command: str,
+        script: dict[str, Any],
+        voice: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Generate a complete visual production plan.
+
+        Input:
+        - Topic
+        - Platform
+        - Creator command
+        - Script stage output
+        - Optional voice stage output
+
+        Output:
+        - Scenes
+        - Timeline
+        - Visual prompts
+        - B-roll requirements
+        - Overlays
+        - Production summary
+        """
+
+        topic = str(
+            topic or ""
+        ).strip()
+
+        platform = str(
+            platform or "youtube"
+        ).strip().lower()
+
+        command = str(
+            command or ""
+        ).strip()
+
+        if not topic:
+            raise ValueError(
+                "VisualService requires a topic."
+            )
+
+        if not isinstance(script, dict):
+            raise ValueError(
+                "VisualService requires Script output "
+                "as a dictionary."
+            )
+
+        if voice is not None and not isinstance(
+            voice,
+            dict,
+        ):
+            raise ValueError(
+                "VisualService requires Voice output "
+                "as a dictionary."
+            )
+
+        normalized_script = self._normalize_script(
+            script
+        )
+
+        narration_sections = (
+            self._extract_narration_sections(
+                normalized_script
+            )
+        )
+
+        if not narration_sections:
+            raise ValueError(
+                "VisualService could not find usable "
+                "narration sections in Script output."
+            )
+
+        format_config = self._get_platform_format(
+            platform
+        )
+
+        normalized_voice = self._normalize_voice(
+            voice
+        )
+
+        voice_duration = (
+            self._extract_voice_duration(
+                normalized_voice
+            )
+        )
+
+        scenes = self._build_scenes(
+            topic=topic,
+            platform=platform,
+            narration_sections=narration_sections,
+            voice_duration=voice_duration,
+        )
+
+        overlays = self._build_overlays(
+            scenes=scenes,
+            topic=topic,
+            platform=platform,
+        )
+
+        visual_requirements = (
+            self._build_visual_requirements(
+                scenes=scenes,
+                topic=topic,
+                platform=platform,
+            )
+        )
+
+        # Generate real local visual assets for the video pipeline.
+        for requirement in visual_requirements:
+            asset = self.local_asset_generator.generate_asset(
+                scene_id=str(requirement["scene_id"]),
+                topic=topic,
+                prompt=str(requirement["prompt"]),
+                width=int(format_config["width"]),
+                height=int(format_config["height"]),
+            )
+
+            requirement.update(
+                {
+                    "provider": asset["provider"],
+                    "provider_status": asset["provider_status"],
+                    "asset_type": asset["asset_type"],
+                    "file_path": asset["file_path"],
+                    "asset_path": asset["asset_path"],
+                    "file_url": asset["file_url"],
+                    "mime_type": asset["mime_type"],
+                    "ready_for_video": asset["ready_for_video"],
+                }
+            )
+
+        production_summary = (
+            self._build_production_summary(
+                scenes=scenes,
+                overlays=overlays,
+                visual_requirements=visual_requirements,
+            )
+        )
+
+        result = {
+            "stage": "visuals",
+            "status": "completed",
+            "execution": "visual_service",
+            "provider": self.provider,
+            "topic": topic,
+            "platform": platform,
+            "command": command,
+            "format": format_config,
+            "visual_plan": {
+                "scene_count": len(scenes),
+                "scenes": scenes,
+                "overlays": overlays,
+                "visual_requirements": (
+                    visual_requirements
+                ),
+                "production_summary": (
+                    production_summary
+                ),
+            },
+            "sync": {
+                "voice_sync_enabled": bool(
+                    normalized_voice
+                ),
+                "voice_duration_seconds": (
+                    voice_duration
+                ),
+                "timeline_source": (
+                    "voice"
+                    if voice_duration is not None
+                    else "script"
+                ),
+            },
+            "ready_for_video": True,
+        }
+
+        return self._normalize_result(
+            result
+        )
+
+    # ================================================================
+    # SCRIPT NORMALIZATION
+    # ================================================================
+
+    def _normalize_script(
+        self,
+        script: dict[str, Any],
+    ) -> dict[str, Any]:
+
+        if not isinstance(script, dict):
+            raise ValueError(
+                "VisualService requires Script output "
+                "as a dictionary."
+            )
+
+        data = script
+
+        inner_script = data.get(
+            "script"
+        )
+
+        if isinstance(
+            inner_script,
+            dict,
+        ):
+            data = inner_script
+
+        normalized = dict(data)
+
+        sections = normalized.get(
+            "sections"
+        )
+
+        if not isinstance(
+            sections,
+            list,
+        ):
+            sections = []
+
+        normalized["sections"] = sections
+
+        return normalized
+
+    # ================================================================
+    # VOICE NORMALIZATION
+    # ================================================================
+
+    def _normalize_voice(
+        self,
+        voice: dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+
+        if voice is None:
+            return None
+
+        if not isinstance(
+            voice,
+            dict,
+        ):
+            raise ValueError(
+                "VisualService requires Voice output "
+                "as a dictionary."
+            )
+
+        inner_voice = voice.get(
+            "voice"
+        )
+
+        if isinstance(
+            inner_voice,
+            dict,
+        ):
+            return inner_voice
+
+        return voice
+
+    # ================================================================
+    # NARRATION EXTRACTION
+    # ================================================================
+
+    def _extract_narration_sections(
+        self,
+        script: dict[str, Any],
+    ) -> list[dict[str, Any]]:
+
+        sections = script.get(
+            "sections"
+        ) or []
+
+        narration_sections: list[
+            dict[str, Any]
+        ] = []
+
+        for index, section in enumerate(
+            sections
+        ):
+
+            if not isinstance(
+                section,
+                dict,
+            ):
+                continue
+
+            narration = (
+                section.get("narration")
+                or section.get("voiceover")
+                or section.get("voice_over")
+                or section.get("text")
+                or ""
+            )
+
+            narration = self._clean_text(
+                str(narration)
+            )
+
+            if not narration:
+                continue
+
+            start = self._parse_time(
+                section.get("start")
+                or section.get("start_time")
+                or section.get("time_start")
+            )
+
+            end = self._parse_time(
+                section.get("end")
+                or section.get("end_time")
+                or section.get("time_end")
+            )
+
+            duration = section.get(
+                "duration_seconds"
+            )
+
+            if (
+                duration is None
+                and start is not None
+                and end is not None
+            ):
+                duration = max(
+                    0.0,
+                    end - start,
+                )
+
+            narration_sections.append(
+                {
+                    "index": index,
+                    "section_id": str(
+                        section.get("id")
+                        or section.get(
+                            "section_id"
+                        )
+                        or section.get("name")
+                        or section.get(
+                            "section"
+                        )
+                        or f"section_{index + 1}"
+                    ).strip(),
+                    "title": str(
+                        section.get("title")
+                        or section.get("name")
+                        or section.get(
+                            "section"
+                        )
+                        or (
+                            f"Section "
+                            f"{index + 1}"
+                        )
+                    ).strip(),
+                    "narration": narration,
+                    "start": start,
+                    "end": end,
+                    "duration_seconds": (
+                        self._safe_float(
+                            duration
+                        )
+                    ),
+                    "purpose": str(
+                        section.get("purpose")
+                        or section.get("goal")
+                        or ""
+                    ).strip(),
+                    "visual_direction": str(
+                        section.get(
+                            "visual_direction"
+                        )
+                        or section.get("visual")
+                        or section.get("visuals")
+                        or ""
+                    ).strip(),
+                }
+            )
+
+        if not narration_sections:
+
+            complete_script = self._clean_text(
+                script.get(
+                    "complete_script",
+                    "",
+                )
+                or script.get(
+                    "content",
+                    "",
+                )
+            )
+
+            if complete_script:
+
+                narration_sections.append(
+                    {
+                        "index": 0,
+                        "section_id": (
+                            "full_script"
+                        ),
+                        "title": (
+                            "Complete Script"
+                        ),
+                        "narration": (
+                            complete_script
+                        ),
+                        "start": None,
+                        "end": None,
+                        "duration_seconds": None,
+                        "purpose": (
+                            "Complete narration"
+                        ),
+                        "visual_direction": "",
+                    }
+                )
+
+        return narration_sections
+
+    # ================================================================
+    # SCENE GENERATION
+    # ================================================================
+
+    def _build_scenes(
+        self,
+        topic: str,
+        platform: str,
+        narration_sections: list[
+            dict[str, Any]
+        ],
+        voice_duration: float | None,
+    ) -> list[dict[str, Any]]:
+
+        scenes: list[
+            dict[str, Any]
+        ] = []
+
+        for index, section in enumerate(
+            narration_sections
+        ):
+
+            start = section.get(
+                "start"
+            )
+
+            end = section.get(
+                "end"
+            )
+
+            duration = section.get(
+                "duration_seconds"
+            )
+
+            if start is None:
+
+                if scenes:
+
+                    start = scenes[-1].get(
+                        "end_seconds",
+                        0.0,
+                    )
+
+                else:
+
+                    start = 0.0
+
+            if (
+                duration is None
+                or duration <= 0
+            ):
+
+                duration = (
+                    self._estimate_duration(
+                        section["narration"]
+                    )
+                )
+
+            if end is None:
+
+                end = start + duration
+
+            if end <= start:
+
+                end = start + max(
+                    duration,
+                    1.0,
+                )
+
+            visual_type = (
+                self._select_visual_type(
+                    section_title=section[
+                        "title"
+                    ],
+                    narration=section[
+                        "narration"
+                    ],
+                    index=index,
+                    platform=platform,
+                )
+            )
+
+            visual_prompt = (
+                self._build_visual_prompt(
+                    topic=topic,
+                    section=section,
+                    visual_type=visual_type,
+                    platform=platform,
+                )
+            )
+
+            scene = {
+                "scene_id": (
+                    f"scene_{index + 1:03d}"
+                ),
+                "scene_order": index + 1,
+                "source_section_id": (
+                    section["section_id"]
+                ),
+                "section_title": (
+                    section["title"]
+                ),
+                "start_seconds": round(
+                    float(start),
+                    2,
+                ),
+                "end_seconds": round(
+                    float(end),
+                    2,
+                ),
+                "duration_seconds": round(
+                    float(end - start),
+                    2,
+                ),
+                "visual_type": visual_type,
+                "visual_prompt": visual_prompt,
+                "narration": (
+                    section["narration"]
+                ),
+                "purpose": (
+                    section.get("purpose")
+                    or "support_narration"
+                ),
+                "visual_direction": (
+                    section.get(
+                        "visual_direction"
+                    )
+                    or ""
+                ),
+                "b_roll": (
+                    self._build_b_roll_requirements(
+                        section=section,
+                        visual_type=visual_type,
+                    )
+                ),
+                "camera_direction": (
+                    self._build_camera_direction(
+                        visual_type=visual_type,
+                        narration=section[
+                            "narration"
+                        ],
+                    )
+                ),
+                "transition": (
+                    self._select_transition(
+                        index
+                    )
+                ),
+                "sync": {
+                    "narration_locked": True,
+                    "start_locked": True,
+                    "end_locked": True,
+                },
+            }
+
+            scenes.append(scene)
+
+        if (
+            voice_duration is not None
+            and scenes
+        ):
+
+            scenes = (
+                self._fit_scenes_to_voice_duration(
+                    scenes,
+                    voice_duration,
+                )
+            )
+
+        return scenes
+
+    # ================================================================
+    # VISUAL TYPE SELECTION
+    # ================================================================
+
+    def _select_visual_type(
+        self,
+        section_title: str,
+        narration: str,
+        index: int,
+        platform: str,
+    ) -> str:
+
+        text = (
+            f"{section_title} {narration}"
+        ).lower()
+
+        if any(
+            word in text
+            for word in [
+                "chart",
+                "percentage",
+                "growth",
+                "data",
+                "statistics",
+                "statistic",
+                "number",
+                "comparison",
+            ]
+        ):
+            return "chart"
+
+        if any(
+            word in text
+            for word in [
+                "step",
+                "process",
+                "how to",
+                "framework",
+                "system",
+                "diagram",
+                "workflow",
+            ]
+        ):
+            return "diagram"
+
+        if any(
+            word in text
+            for word in [
+                "example",
+                "screen",
+                "software",
+                "website",
+                "app",
+                "platform",
+                "dashboard",
+            ]
+        ):
+            return "screen_recording"
+
+        if index == 0:
+            return "generated_video"
+
+        if any(
+            word in text
+            for word in [
+                "important",
+                "remember",
+                "key",
+                "lesson",
+                "mistake",
+                "warning",
+            ]
+        ):
+            return "motion_graphic"
+
+        return "b_roll"
+
+    # ================================================================
+    # VISUAL PROMPTS
+    # ================================================================
+
+    def _build_visual_prompt(
+        self,
+        topic: str,
+        section: dict[str, Any],
+        visual_type: str,
+        platform: str,
+    ) -> str:
+
+        narration = section.get(
+            "narration",
+            "",
+        )
+
+        title = section.get(
+            "title",
+            "Untitled Section",
+        )
+
+        aspect_ratio = (
+            self._get_platform_format(
+                platform
+            ).get(
+                "aspect_ratio",
+                "16:9",
+            )
+        )
+
+        if visual_type == "chart":
+
+            style = (
+                "clean editorial data "
+                "visualization, readable labels, "
+                "modern professional presentation"
+            )
+
+        elif visual_type == "diagram":
+
+            style = (
+                "clear explanatory diagram, "
+                "simple visual hierarchy, "
+                "professional educational design"
+            )
+
+        elif visual_type == "screen_recording":
+
+            style = (
+                "realistic software interface "
+                "demonstration, clean UI, "
+                "focused composition"
+            )
+
+        elif visual_type == "motion_graphic":
+
+            style = (
+                "dynamic motion graphic, "
+                "bold visual hierarchy, "
+                "minimal professional design"
+            )
+
+        elif visual_type == "generated_video":
+
+            style = (
+                "cinematic but realistic footage, "
+                "strong opening visual, "
+                "professional creator content"
+            )
+
+        else:
+
+            style = (
+                "cinematic realistic B-roll, "
+                "visually engaging, "
+                "professional creator content"
+            )
+
+        visual_direction = str(
+            section.get(
+                "visual_direction",
+                "",
+            )
+            or ""
+        ).strip()
+
+        direction_text = ""
+
+        if visual_direction:
+
+            direction_text = (
+                " Additional script direction: "
+                f"'{visual_direction}'."
+            )
+
+        return (
+            f"Create a {visual_type} for the "
+            f"section '{title}' of a video about "
+            f"'{topic}'. "
+            f"The visual should directly support "
+            f"this narration: '{narration}'. "
+            f"Style: {style}. "
+            f"Composition should be optimized for "
+            f"{aspect_ratio}."
+            f"{direction_text}"
+        )
+
+    # ================================================================
+    # B-ROLL REQUIREMENTS
+    # ================================================================
+
+    def _build_b_roll_requirements(
+        self,
+        section: dict[str, Any],
+        visual_type: str,
+    ) -> list[dict[str, Any]]:
+        """
+        Build B-roll and supporting visual requirements.
+        """
+
+        narration = str(
+            section.get("narration") or ""
+        )
+
+        keywords = (
+            self._extract_visual_keywords(
+                narration
+            )
+        )
+
+        requirements: list[
+            dict[str, Any]
+        ] = []
+
+        keyword_text = (
+            ", ".join(keywords[:5])
+            if keywords
+            else "the narration"
+        )
+
+        supporting_keyword_text = (
+            ", ".join(keywords[:5])
+            if keywords
+            else "the main idea"
+        )
+
+        if visual_type in {
+            "b_roll",
+            "generated_video",
+            "stock_video",
+        }:
+
+            requirements.append(
+                {
+                    "type": "primary",
+                    "description": (
+                        "Visual footage illustrating: "
+                        f"{keyword_text}"
+                    ),
+                    "keywords": keywords[:8],
+                }
+            )
+
+        if visual_type in {
+            "generated_image",
+            "stock_image",
+            "chart",
+            "diagram",
+            "motion_graphic",
+            "text_overlay",
+        }:
+
+            requirements.append(
+                {
+                    "type": "supporting",
+                    "description": (
+                        "Supporting visual for: "
+                        f"{supporting_keyword_text}"
+                    ),
+                    "keywords": keywords[:8],
+                }
+            )
+
+        if not requirements:
+
+            requirements.append(
+                {
+                    "type": "general",
+                    "description": (
+                        "Visual asset supporting "
+                        "the current narration."
+                    ),
+                    "keywords": keywords[:8],
+                }
+            )
+
+        return requirements
+
+    # ================================================================
+    # CAMERA DIRECTION
+    # ================================================================
+
+    def _build_camera_direction(
+        self,
+        visual_type: str,
+        narration: str,
+    ) -> dict[str, Any]:
+
+        if visual_type == "generated_video":
+
+            return {
+                "shot": (
+                    "establishing_to_medium"
+                ),
+                "movement": "slow_dynamic",
+                "framing": "subject_focused",
+            }
+
+        if visual_type == "b_roll":
+
+            return {
+                "shot": "varied_b_roll",
+                "movement": "natural",
+                "framing": (
+                    "narration_supporting"
+                ),
+            }
+
+        if visual_type == "screen_recording":
+
+            return {
+                "shot": "screen_focused",
+                "movement": "controlled",
+                "framing": (
+                    "interface_focused"
+                ),
+            }
+
+        return {
+            "shot": (
+                "static_or_subtle_motion"
+            ),
+            "movement": "minimal",
+            "framing": (
+                "information_focused"
+            ),
+        }
+
+    # ================================================================
+    # TRANSITIONS
+    # ================================================================
+
+    def _select_transition(
+        self,
+        index: int,
+    ) -> str:
+
+        if index == 0:
+            return "fade_in"
+
+        return "clean_cut"
+
+    # ================================================================
+    # OVERLAYS
+    # ================================================================
+
+    def _build_overlays(
+        self,
+        scenes: list[dict[str, Any]],
+        topic: str,
+        platform: str,
+    ) -> list[dict[str, Any]]:
+
+        overlays: list[
+            dict[str, Any]
+        ] = []
+
+        for scene in scenes:
+
+            narration = str(
+                scene.get("narration") or ""
+            )
+
+            key_phrase = (
+                self._extract_key_phrase(
+                    narration
+                )
+            )
+
+            if not key_phrase:
+                continue
+
+            overlays.append(
+                {
+                    "overlay_id": (
+                        f"overlay_"
+                        f"{len(overlays) + 1:03d}"
+                    ),
+                    "scene_id": (
+                        scene["scene_id"]
+                    ),
+                    "type": "text_overlay",
+                    "text": key_phrase,
+                    "start_seconds": (
+                        scene["start_seconds"]
+                    ),
+                    "end_seconds": min(
+                        scene["end_seconds"],
+                        (
+                            scene["start_seconds"]
+                            + 4.0
+                        ),
+                    ),
+                    "style": {
+                        "hierarchy": "high",
+                        "readability": "high",
+                        "placement": "safe_zone",
+                    },
+                    "purpose": (
+                        "reinforce_key_message"
+                    ),
+                }
+            )
+
+        return overlays
+
+    def _extract_key_phrase(
+        self,
+        narration: str,
+    ) -> str:
+
+        words = narration.split()
+
+        if not words:
+            return ""
+
+        phrase = " ".join(
+            words[:8]
+        )
+
+        phrase = re.sub(
+            r"[^\w\s'-]",
+            "",
+            phrase,
+            flags=re.UNICODE,
+        ).strip()
+
+        if len(phrase) < 3:
+            return ""
+
+        return phrase
+
+    # ================================================================
+    # VISUAL REQUIREMENTS
+    # ================================================================
+
+    def _build_visual_requirements(
+        self,
+        scenes: list[dict[str, Any]],
+        topic: str,
+        platform: str,
+    ) -> list[dict[str, Any]]:
+
+        requirements: list[
+            dict[str, Any]
+        ] = []
+
+        for scene in scenes:
+
+            visual_type = scene.get(
+                "visual_type",
+                "b_roll",
+            )
+
+            requirements.append(
+                {
+                    "scene_id": (
+                        scene["scene_id"]
+                    ),
+                    "required": True,
+                    "asset_type": visual_type,
+                    "topic": topic,
+                    "platform": platform,
+                    "prompt": (
+                        scene["visual_prompt"]
+                    ),
+                    "duration_seconds": (
+                        scene["duration_seconds"]
+                    ),
+                    "provider_status": "pending",
+                }
+            )
+
+        return requirements
+
+    # ================================================================
+    # PRODUCTION SUMMARY
+    # ================================================================
+
+    def _build_production_summary(
+        self,
+        scenes: list[dict[str, Any]],
+        overlays: list[dict[str, Any]],
+        visual_requirements: list[
+            dict[str, Any]
+        ],
+    ) -> dict[str, Any]:
+
+        visual_types: dict[
+            str,
+            int,
+        ] = {}
+
+        for scene in scenes:
+
+            visual_type = scene.get(
+                "visual_type",
+                "unknown",
+            )
+
+            visual_types[visual_type] = (
+                visual_types.get(
+                    visual_type,
+                    0,
+                )
+                + 1
+            )
+
+        total_duration = 0.0
+
+        if scenes:
+
+            total_duration = max(
+                float(
+                    scene.get(
+                        "end_seconds",
+                        0.0,
+                    )
+                )
+                for scene in scenes
+            )
+
+        return {
+            "total_scenes": len(scenes),
+            "total_duration_seconds": round(
+                total_duration,
+                2,
+            ),
+            "total_overlays": len(
+                overlays
+            ),
+            "total_visual_requirements": len(
+                visual_requirements
+            ),
+            "visual_types": visual_types,
+            "all_scenes_have_visual_requirements": (
+                len(scenes)
+                == len(visual_requirements)
+            ),
+        }
+
+    # ================================================================
+    # VOICE SYNCHRONIZATION
+    # ================================================================
+
+    def _extract_voice_duration(
+        self,
+        voice: dict[str, Any] | None,
+    ) -> float | None:
+
+        if not voice:
+            return None
+
+        candidates = [
+            voice.get(
+                "estimated_duration_seconds"
+            ),
+            voice.get(
+                "duration_seconds"
+            ),
+        ]
+
+        audio = voice.get(
+            "audio"
+        )
+
+        if isinstance(
+            audio,
+            dict,
+        ):
+
+            candidates.extend(
+                [
+                    audio.get(
+                        "duration_seconds"
+                    ),
+                    audio.get(
+                        "estimated_duration_seconds"
+                    ),
+                ]
+            )
+
+        for candidate in candidates:
+
+            value = self._safe_float(
+                candidate
+            )
+
+            if (
+                value is not None
+                and value > 0
+            ):
+
+                return value
+
+        return None
+
+    def _fit_scenes_to_voice_duration(
+        self,
+        scenes: list[dict[str, Any]],
+        voice_duration: float,
+    ) -> list[dict[str, Any]]:
+
+        if not scenes:
+            return scenes
+
+        last_end = float(
+            scenes[-1].get(
+                "end_seconds",
+                0.0,
+            )
+        )
+
+        if last_end <= 0:
+            return scenes
+
+        difference = (
+            voice_duration - last_end
+        )
+
+        if abs(difference) <= 2.0:
+
+            scenes[-1]["end_seconds"] = round(
+                voice_duration,
+                2,
+            )
+
+            scenes[-1][
+                "duration_seconds"
+            ] = round(
+                max(
+                    0.0,
+                    voice_duration
+                    - float(
+                        scenes[-1].get(
+                            "start_seconds",
+                            0.0,
+                        )
+                    ),
+                ),
+                2,
+            )
+
+        return scenes
+
+    # ================================================================
+    # PLATFORM FORMAT
+    # ================================================================
+
+    def _get_platform_format(
+        self,
+        platform: str,
+    ) -> dict[str, Any]:
+
+        platform = str(
+            platform or "youtube"
+        ).lower().strip()
+
+        if platform in self.PLATFORM_FORMATS:
+
+            return dict(
+                self.PLATFORM_FORMATS[
+                    platform
+                ]
+            )
+
+        return {
+            "aspect_ratio": "16:9",
+            "width": 1920,
+            "height": 1080,
+            "fallback": True,
+        }
+
+    # ================================================================
+    # UTILITY FUNCTIONS
+    # ================================================================
+
+    def _estimate_duration(
+        self,
+        text: str,
+    ) -> float:
+
+        words = len(
+            str(text or "").split()
+        )
+
+        if words <= 0:
+            return 1.0
+
+        return round(
+            max(
+                1.0,
+                words / 2.5,
+            ),
+            2,
+        )
+
+    def _extract_visual_keywords(
+        self,
+        text: str,
+    ) -> list[str]:
+
+        cleaned = re.sub(
+            r"[^\w\s-]",
+            " ",
+            str(text or "").lower(),
+            flags=re.UNICODE,
+        )
+
+        words = [
+            word
+            for word in cleaned.split()
+            if len(word) >= 4
+        ]
+
+        stop_words = {
+            "this",
+            "that",
+            "with",
+            "from",
+            "have",
+            "will",
+            "your",
+            "they",
+            "their",
+            "about",
+            "there",
+            "which",
+            "when",
+            "what",
+            "where",
+            "while",
+            "into",
+            "than",
+            "then",
+            "them",
+            "these",
+            "those",
+            "because",
+            "would",
+            "could",
+            "should",
+            "also",
+            "more",
+            "some",
+            "very",
+            "just",
+            "today",
+            "like",
+            "only",
+            "really",
+            "being",
+            "been",
+            "were",
+        }
+
+        result: list[str] = []
+
+        for word in words:
+
+            if word in stop_words:
+                continue
+
+            if word not in result:
+
+                result.append(
+                    word
+                )
+
+        return result
+
+    def _parse_time(
+        self,
+        value: Any,
+    ) -> float | None:
+
+        if value is None:
+            return None
+
+        if isinstance(
+            value,
+            (int, float),
+        ):
+            return float(value)
+
+        text = str(
+            value
+        ).strip()
+
+        if not text:
+            return None
+
+        if re.fullmatch(
+            r"\d+(\.\d+)?",
+            text,
+        ):
+            return float(text)
+
+        match = re.fullmatch(
+            r"(?:(\d+):)?"
+            r"(\d{1,2}):"
+            r"(\d{2})"
+            r"(?:\.(\d+))?",
+            text,
+        )
+
+        if not match:
+            return None
+
+        hours = int(
+            match.group(1) or 0
+        )
+
+        minutes = int(
+            match.group(2)
+        )
+
+        seconds = int(
+            match.group(3)
+        )
+
+        fraction = match.group(4)
+
+        fractional_seconds = (
+            float(
+                f"0.{fraction}"
+            )
+            if fraction
+            else 0.0
+        )
+
+        return (
+            hours * 3600
+            + minutes * 60
+            + seconds
+            + fractional_seconds
+        )
+
+    def _safe_float(
+        self,
+        value: Any,
+    ) -> float | None:
+
+        if value is None:
+            return None
+
+        try:
+
+            return float(value)
+
+        except (
+            TypeError,
+            ValueError,
+        ):
+
+            return None
+
+    def _clean_text(
+        self,
+        text: str,
+    ) -> str:
+
+        if text is None:
+            return ""
+
+        cleaned = str(text)
+
+        replacements = {
+            "realquestion": (
+                "real question"
+            ),
+            "watchnext": (
+                "watch next"
+            ),
+            "futurewith": (
+                "future with"
+            ),
+            "whatismatters": (
+                "what matters"
+            ),
+        }
+
+        for old, new in replacements.items():
+
+            cleaned = cleaned.replace(
+                old,
+                new,
+            )
+
+        cleaned = re.sub(
+            r"\s+",
+            " ",
+            cleaned,
+        ).strip()
+
+        return cleaned
+
+    def _normalize_result(
+        self,
+        result: dict[str, Any],
+    ) -> dict[str, Any]:
+
+        normalized = dict(result)
+
+        normalized.setdefault(
+            "stage",
+            "visuals",
+        )
+
+        normalized.setdefault(
+            "status",
+            "completed",
+        )
+
+        normalized.setdefault(
+            "execution",
+            "visual_service",
+        )
+
+        normalized.setdefault(
+            "provider",
+            self.provider,
+        )
+
+        normalized.setdefault(
+            "ready_for_video",
+            True,
+        )
+
+        return normalized
+
+
+visual_service = VisualService()
+

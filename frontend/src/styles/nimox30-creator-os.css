@@ -1,0 +1,230 @@
+.nimox-creator-os-page {
+  padding: 28px;
+  min-height: 100%;
+  background: #f7f1e8;
+  color: #211b1c;
+}
+
+.nimox-creator-os-hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 34px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #211b1c, #4b2735);
+  color: #fffaf2;
+  margin-bottom: 22px;
+}
+
+.nimox-eyebrow {
+  font-size: 11px;
+  letter-spacing: .16em;
+  font-weight: 800;
+  opacity: .75;
+  margin-bottom: 10px;
+}
+
+.nimox-creator-os-hero h1 {
+  margin: 0;
+  font-size: clamp(28px, 4vw, 52px);
+  line-height: 1;
+}
+
+.nimox-creator-os-hero p {
+  max-width: 650px;
+  opacity: .78;
+  line-height: 1.6;
+}
+
+.nimox-os-status {
+  min-width: 150px;
+  align-self: flex-start;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,.1);
+}
+
+.nimox-os-status span,
+.nimox-os-status strong {
+  display: block;
+}
+
+.nimox-os-status span {
+  font-size: 12px;
+  opacity: .65;
+}
+
+.nimox-os-create {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.nimox-os-create input {
+  flex: 1;
+  min-width: 0;
+  padding: 15px 18px;
+  border: 1px solid #dfd1c6;
+  border-radius: 14px;
+  background: #fffdf8;
+  color: #211b1c;
+  outline: none;
+}
+
+.nimox-os-create button {
+  border: 0;
+  border-radius: 14px;
+  padding: 0 18px;
+  font-weight: 800;
+  cursor: pointer;
+  background: #211b1c;
+  color: #fffaf2;
+}
+
+.nimox-os-create button:last-child {
+  background: #eadbd1;
+  color: #211b1c;
+}
+
+.nimox-os-message {
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: #eadbd1;
+  margin-bottom: 18px;
+}
+
+.nimox-os-progress,
+.nimox-os-panel {
+  background: #fffdf8;
+  border: 1px solid #eadfd6;
+  border-radius: 22px;
+  padding: 20px;
+}
+
+.nimox-os-progress {
+  margin-bottom: 18px;
+}
+
+.nimox-os-progress-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: 800;
+}
+
+.nimox-os-progress-track {
+  height: 10px;
+  border-radius: 99px;
+  background: #eadfd6;
+  overflow: hidden;
+}
+
+.nimox-os-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #9a3d5d;
+  transition: width .3s ease;
+}
+
+.nimox-os-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.nimox-os-stage {
+  min-height: 105px;
+  padding: 16px;
+  border-radius: 18px;
+  background: #fffdf8;
+  border: 1px solid #eadfd6;
+}
+
+.nimox-os-stage span,
+.nimox-os-stage strong,
+.nimox-os-stage small {
+  display: block;
+}
+
+.nimox-os-stage span {
+  font-size: 11px;
+  opacity: .45;
+  margin-bottom: 12px;
+}
+
+.nimox-os-stage strong {
+  text-transform: capitalize;
+}
+
+.nimox-os-stage small {
+  margin-top: 8px;
+  opacity: .55;
+}
+
+.nimox-os-stage.done {
+  border-color: #9a3d5d;
+  background: #f7e7ed;
+}
+
+.nimox-os-stage.active {
+  border-color: #211b1c;
+}
+
+.nimox-os-panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.nimox-os-panel h2 {
+  margin-top: 0;
+}
+
+.nimox-os-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 0;
+  border-bottom: 1px solid #eadfd6;
+}
+
+.nimox-os-row:last-child {
+  border-bottom: 0;
+}
+
+.nimox-os-row span {
+  opacity: .6;
+}
+
+@media (max-width: 900px) {
+  .nimox-os-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nimox-os-panels {
+    grid-template-columns: 1fr;
+  }
+
+  .nimox-creator-os-hero {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 620px) {
+  .nimox-creator-os-page {
+    padding: 16px;
+  }
+
+  .nimox-os-create {
+    flex-direction: column;
+  }
+
+  .nimox-os-create button {
+    min-height: 46px;
+  }
+
+  .nimox-os-grid {
+    grid-template-columns: 1fr;
+  }
+}

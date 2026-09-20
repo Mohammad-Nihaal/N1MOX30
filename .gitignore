@@ -1,0 +1,73 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.production.example
+*.pem
+*.key
+*.crt
+credentials.json
+client_secret*.json
+
+# Databases / local state
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Frontend build
+frontend/dist/
+dist/
+
+# Vite
+frontend/node_modules/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+
+# Temporary backups
+*.bak
+*.backup
+*.tmp
+
+# Test artifacts
+coverage/
+htmlcov/
+
+# Runtime generated files
+uploads/
+generated/
+output/
+temp/
+
+# Secrets accidentally copied into project
+secrets/
+private/
+tokens/
+oauth_tokens/

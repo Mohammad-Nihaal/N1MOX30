@@ -1,0 +1,67 @@
+/* N1MOX30 production foundation */
+html { scroll-behavior: smooth; }
+:focus-visible { outline: 2px solid #9bbcff; outline-offset: 3px; }
+button, a, input, textarea, select { font: inherit; }
+.nm-skip { position:fixed; left:16px; top:-80px; z-index:10000; padding:10px 14px; border-radius:10px; background:#fff; color:#080a0d; font-weight:700; transition:top .2s ease; }
+.nm-skip:focus { top:16px; }
+.nm-help-float,.nm-top-button { position:fixed; z-index:900; border:1px solid rgba(255,255,255,.12); background:rgba(14,16,20,.92); color:#fff; box-shadow:0 12px 40px rgba(0,0,0,.24); backdrop-filter:blur(16px); }
+.nm-help-float { right:22px; bottom:22px; display:flex; align-items:center; gap:8px; padding:11px 14px; border-radius:999px; text-decoration:none; }
+.nm-top-button { right:22px; bottom:76px; width:42px; height:42px; border-radius:50%; display:grid; place-items:center; cursor:pointer; }
+.nm-cookie { position:fixed; z-index:9500; left:20px; right:20px; bottom:20px; max-width:1050px; margin:auto; display:flex; justify-content:space-between; gap:24px; padding:18px 20px; border:1px solid rgba(255,255,255,.13); border-radius:18px; background:rgba(15,17,21,.96); color:#fff; box-shadow:0 24px 80px rgba(0,0,0,.4); }
+.nm-cookie p { margin:5px 0 0; max-width:700px; color:#b7bcc7; line-height:1.5; font-size:14px; }
+.nm-cookie-actions { display:flex; align-items:center; gap:9px; flex-wrap:wrap; }
+.nm-cookie button,.nm-cookie a { border:1px solid rgba(255,255,255,.15); background:transparent; color:#fff; padding:9px 12px; border-radius:10px; text-decoration:none; cursor:pointer; }
+.nm-cookie button.primary { background:#fff; color:#080a0d; border-color:#fff; font-weight:700; }
+.nm-public-shell { min-height:100vh; background:#090b0e; color:#f4f6f8; padding:24px; }
+.nm-public-top { max-width:1160px; margin:auto; display:flex; justify-content:space-between; align-items:center; }
+.nm-public-back,.nm-public-app { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:8px; }
+.nm-public-app { opacity:.75; }
+.nm-public-content { max-width:900px; margin:90px auto 120px; }
+.nm-public-eyebrow { letter-spacing:.12em; text-transform:uppercase; font-size:12px; color:#9aa3b2; font-weight:700; margin-bottom:14px; }
+.nm-public-content h1 { font-size:clamp(42px,7vw,76px); line-height:.98; letter-spacing:-.055em; margin:0 0 24px; }
+.nm-public-content h2 { font-size:22px; margin:42px 0 10px; letter-spacing:-.02em; }
+.nm-public-content p,.nm-public-content li { color:#aeb6c3; line-height:1.7; font-size:17px; }
+.nm-public-lead { font-size:21px !important; max-width:760px; }
+.nm-public-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:38px; }
+.nm-public-card { border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:24px; background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018)); }
+.nm-public-card h2 { margin-top:12px; }
+.nm-public-card svg { opacity:.7; }
+.nm-public-card a { color:#fff; text-decoration:none; display:inline-flex; align-items:center; gap:5px; margin-top:8px; }
+.nm-public-actions { display:flex; gap:14px; align-items:center; margin-top:28px; }
+.nm-public-button { display:inline-flex; align-items:center; justify-content:center; padding:12px 16px; border-radius:11px; background:#fff; color:#080a0d; text-decoration:none; font-weight:750; }
+.nm-public-link { color:#fff; text-decoration:none; }
+.nm-public-callout { margin-top:38px; padding:18px 20px; border-left:2px solid #8daeff; background:rgba(141,174,255,.06); color:#c2c9d5; line-height:1.6; }
+@media (max-width:700px) {
+  .nm-public-shell { padding:18px; }
+  .nm-public-content { margin:65px auto 90px; }
+  .nm-public-grid { grid-template-columns:1fr; }
+  .nm-cookie { left:10px; right:10px; bottom:10px; flex-direction:column; gap:12px; }
+  .nm-help-float { right:14px; bottom:14px; }
+  .nm-top-button { right:14px; bottom:68px; }
+}
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+
+.nm-pricing-page{min-height:100vh;background:#090b0e;color:#f4f6f8;padding:24px}
+.nm-pricing-top{max-width:1180px;margin:auto;display:flex;justify-content:space-between;align-items:center}
+.nm-pricing-back{color:#fff;text-decoration:none}
+.nm-currency{display:flex;align-items:center;gap:10px;color:#aeb6c3;font-size:13px}
+.nm-currency select{background:#12151a;color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:9px 11px}
+.nm-pricing-hero{max-width:900px;margin:100px auto 45px}
+.nm-pricing-hero h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.055em;margin:12px 0 22px}
+.nm-pricing-hero p{color:#aeb6c3;max-width:760px;line-height:1.65;font-size:18px}
+.nm-plan-grid{max-width:1180px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.nm-plan-card{position:relative;border:1px solid rgba(255,255,255,.1);border-radius:22px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.018));transition:transform .25s ease,border-color .25s ease}
+.nm-plan-card:hover{transform:translateY(-5px);border-color:rgba(255,255,255,.24)}
+.nm-plan-card.featured{border-color:rgba(155,188,255,.55)}
+.nm-plan-badge{position:absolute;right:18px;top:18px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#bcd0ff}
+.nm-plan-card h2{font-size:25px;margin:0 0 10px}
+.nm-plan-card p{min-height:52px;color:#9ea7b5;line-height:1.5}
+.nm-plan-price{font-size:40px;font-weight:800;letter-spacing:-.04em;margin:25px 0}
+.nm-plan-price small{font-size:13px;color:#8f98a7;font-weight:500;margin-left:5px}
+.nm-plan-card ul{list-style:none;padding:0;margin:0 0 25px;display:grid;gap:11px}
+.nm-plan-card li{display:flex;align-items:center;gap:9px;color:#c1c8d2;font-size:14px}
+.nm-plan-cta{display:flex;justify-content:center;padding:12px;border-radius:11px;background:#fff;color:#080a0d;text-decoration:none;font-weight:750}
+.nm-billing-trust{max-width:1180px;margin:22px auto 0;display:flex;gap:9px;align-items:center;color:#9ca6b5;font-size:13px}
+.nm-pricing-note{max-width:1180px;margin:20px auto 80px;color:#747e8d;font-size:13px;display:flex;align-items:center;gap:5px}
+@media(max-width:900px){.nm-plan-grid{grid-template-columns:1fr}.nm-pricing-hero{margin-top:70px}.nm-plan-card p{min-height:0}}
+@media(prefers-reduced-motion:reduce){.nm-plan-card{transition:none}.nm-plan-card:hover{transform:none}}
