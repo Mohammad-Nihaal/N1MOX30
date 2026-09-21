@@ -371,9 +371,6 @@ app.include_router(
     connected_accounts_router,
 )
 
-app.include_router(
-    oauth_router,
-)
 
 app.include_router(
     youtube_router,
