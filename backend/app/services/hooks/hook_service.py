@@ -1,6 +1,7 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import json
+import re
 from typing import Any
 
 from app.core.config import settings
@@ -8,20 +9,26 @@ from app.core.config import settings
 
 class HookService:
     """
-    N1MOX30 Hook Intelligence Service.
+    N1MOX30 Hook Intelligence Engine V2.
 
-    Generates multiple hook concepts, classifies them by hook type,
-    evaluates their potential, and selects a recommended hook.
+    Design goals:
+    - desire-first openings
+    - relatable audience/character framing
+    - curiosity and information gaps
+    - concrete specificity
+    - pattern interruption
+    - proof-aware language without fabricated proof
+    - platform-aware hook construction
+    - transparent scoring
+    - multiple candidates before recommendation
 
-    The service consumes research + strategy output from previous
-    workflow stages.
-
-    Providers:
-        - demo
-        - openai
+    The output contract remains compatible with the existing
+    HooksStageHandler and downstream Script/Production stages.
     """
 
     HOOK_TYPES = (
+        "desire",
+        "character_desire",
         "curiosity",
         "story",
         "contrarian",
@@ -29,6 +36,48 @@ class HookService:
         "pattern_interrupt",
         "problem",
         "information_gap",
+    )
+
+    PLATFORM_RULES = {
+        "youtube": {
+            "max_words": 24,
+            "priority": "clear promise + curiosity",
+        },
+        "youtube_shorts": {
+            "max_words": 18,
+            "priority": "fast desire + pattern interrupt",
+        },
+        "instagram": {
+            "max_words": 18,
+            "priority": "desire + relatable identity",
+        },
+        "instagram_reels": {
+            "max_words": 18,
+            "priority": "desire + relatable identity",
+        },
+        "tiktok": {
+            "max_words": 16,
+            "priority": "pattern interrupt + curiosity",
+        },
+        "linkedin": {
+            "max_words": 24,
+            "priority": "specific outcome + credibility",
+        },
+        "x": {
+            "max_words": 22,
+            "priority": "specificity + curiosity",
+        },
+    }
+
+    GENERIC_OPENERS = (
+        "in today's world",
+        "did you know",
+        "here's the thing",
+        "let's talk about",
+        "you won't believe",
+        "this changes everything",
+        "the shocking truth",
+        "game changer",
     )
 
     def __init__(self) -> None:
@@ -45,17 +94,13 @@ class HookService:
         research: dict[str, Any] | None = None,
         strategy: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        """
-        Generate and rank hooks using research and strategy context.
-        """
+
         normalized_topic = topic.strip()
         normalized_platform = platform.strip().lower() or "youtube"
         normalized_command = command.strip()
 
         if not normalized_topic:
-            raise ValueError(
-                "Hook generation requires a topic."
-            )
+            raise ValueError("Hook generation requires a topic.")
 
         normalized_research = research or {}
         normalized_strategy = strategy or {}
@@ -84,6 +129,10 @@ class HookService:
             command=normalized_command,
         )
 
+    # =========================================================
+    # V2 DEMO ENGINE
+    # =========================================================
+
     def _generate_demo_hooks(
         self,
         *,
@@ -93,119 +142,123 @@ class HookService:
         research: dict[str, Any],
         strategy: dict[str, Any],
     ) -> dict[str, Any]:
-        """
-        Deterministic development hook generation.
 
-        The scoring model is intentionally transparent so the workflow
-        can be tested without an external AI provider.
-        """
-        strategy_data = strategy.get(
-            "strategy",
-            strategy,
+        strategy_data = strategy.get("strategy", strategy)
+
+        audience_promise = str(
+            strategy_data.get("audience_promise", "")
+        ).strip()
+
+        audience = str(
+            strategy_data.get("target_audience", "")
+        ).strip()
+
+        angle = str(
+            strategy_data.get(
+                "content_angle",
+                f"The practical reality of {topic}.",
+            )
+        ).strip()
+
+        desired_outcome = self._extract_desire(
+            topic=topic,
+            strategy=strategy_data,
+            command=command,
+            audience_promise=audience_promise,
         )
 
-        angle = strategy_data.get(
-            "content_angle",
-            f"The surprising reality of {topic}.",
+        relatable_character = self._extract_character(
+            audience=audience,
+            command=command,
+            topic=topic,
         )
 
-        audience_promise = strategy_data.get(
-            "audience_promise",
-            "",
+        specificity = self._specificity_signal(
+            topic=topic,
+            research=research,
+            strategy=strategy_data,
+        )
+
+        proof_available = bool(
+            research.get("sources")
+            or research.get("evidence")
+            or research.get("findings")
+            or research.get("data")
         )
 
         hooks = [
-            {
-                "hook": (
-                    f"What if everything you were told about "
-                    f"{topic} is only half the story?"
-                ),
-                "type": "curiosity",
-                "score": 92,
-                "rationale": (
-                    "Creates an information gap without revealing "
-                    "the conclusion."
-                ),
-            },
-            {
-                "hook": (
-                    f"Imagine waking up and discovering that "
-                    f"{topic} has already changed the way you work."
-                ),
-                "type": "story",
-                "score": 88,
-                "rationale": (
-                    "Uses a scenario to place the viewer inside "
-                    "the subject immediately."
-                ),
-            },
-            {
-                "hook": (
-                    f"{topic} isn't simply about the future of work. "
-                    "It may change what we consider a valuable job."
-                ),
-                "type": "contrarian",
-                "score": 91,
-                "rationale": (
-                    "Challenges a common framing and creates a "
-                    "reason to keep watching."
-                ),
-            },
-            {
-                "hook": (
-                    f"If {topic} is moving faster than most people "
-                    "realize, what happens to those who wait?"
-                ),
-                "type": "emotional",
-                "score": 86,
-                "rationale": (
-                    "Creates urgency while keeping the claim "
-                    "appropriately cautious."
-                ),
-            },
-            {
-                "hook": (
-                    f"Forget the usual AI-versus-jobs debate for a "
-                    f"moment. The real question about {topic} is "
-                    "much bigger."
-                ),
-                "type": "pattern_interrupt",
-                "score": 94,
-                "rationale": (
-                    "Interrupts the expected framing and opens "
-                    "a larger question."
-                ),
-            },
-            {
-                "hook": (
-                    f"Here's the problem with predicting how "
-                    f"{topic} will affect everyone."
-                ),
-                "type": "problem",
-                "score": 89,
-                "rationale": (
-                    "Starts with a clearly defined problem and "
-                    "promises an explanation."
-                ),
-            },
-            {
-                "hook": (
-                    f"There is one part of {topic} that most "
-                    "conversations completely overlook."
-                ),
-                "type": "information_gap",
-                "score": 93,
-                "rationale": (
-                    "Signals missing information and encourages "
-                    "the viewer to discover it."
-                ),
-            },
+            self._candidate(
+                f"If you want to {desired_outcome}, start with {topic}.",
+                "desire",
+                "Directly leads with the viewer's desired outcome.",
+            ),
+            self._candidate(
+                f"If you're {relatable_character}, this is what {topic} means for you.",
+                "character_desire",
+                "Connects the subject to a recognizable viewer identity.",
+            ),
+            self._candidate(
+                f"Most people look at {topic} and miss the part that actually matters.",
+                "information_gap",
+                "Creates a concrete information gap without inventing facts.",
+            ),
+            self._candidate(
+                f"The fastest way to rethink {topic} is to start with what you actually want.",
+                "curiosity",
+                "Opens a question around the viewer's desired result.",
+            ),
+            self._candidate(
+                f"Forget the usual {topic} debate. Ask this instead.",
+                "pattern_interrupt",
+                "Breaks the expected framing and creates an open loop.",
+            ),
+            self._candidate(
+                f"{topic}: useful idea, or another distraction? Here's the test.",
+                "contrarian",
+                "Introduces tension without asserting an unsupported conclusion.",
+            ),
+            self._candidate(
+                f"Here's the problem with trying to understand {topic} from the headline alone.",
+                "problem",
+                "Frames a recognizable mistake and promises clarification.",
+            ),
+            self._candidate(
+                f"Imagine getting the result you want from {topic} without doing more of everything.",
+                "story",
+                "Places the viewer inside a desirable scenario.",
+            ),
+            self._candidate(
+                f"If {specificity}, the way you approach {topic} should change.",
+                "emotional",
+                "Uses a concrete contextual signal to create urgency.",
+            ),
         ]
 
-        hooks.sort(
+        scored = []
+
+        for item in hooks:
+            score_details = self._score_hook(
+                hook=item["hook"],
+                hook_type=item["type"],
+                platform=platform,
+                proof_available=proof_available,
+                desired_outcome=desired_outcome,
+            )
+
+            scored.append(
+                {
+                    **item,
+                    "score": score_details["total"],
+                    "score_breakdown": score_details,
+                }
+            )
+
+        scored.sort(
             key=lambda item: item["score"],
             reverse=True,
         )
+
+        recommended = scored[0]
 
         return {
             "topic": topic,
@@ -213,26 +266,288 @@ class HookService:
             "command": command,
             "provider": "demo",
             "hook_status": "generated",
+            "engine_version": "2.0",
             "generation_basis": {
                 "strategy_angle": angle,
                 "audience_promise": audience_promise,
+                "target_audience": audience,
+                "desired_outcome": desired_outcome,
+                "relatable_character": relatable_character,
                 "research_available": bool(research),
+                "proof_available": proof_available,
             },
-            "hooks": hooks,
-            "recommended_hook": hooks[0],
+            "hooks": scored,
+            "recommended_hook": recommended,
             "scoring": {
-                "method": "development_heuristic",
+                "method": "hook_intelligence_v2",
                 "scale": "0-100",
                 "factors": [
+                    "desire_strength",
+                    "relatable_character",
                     "curiosity",
+                    "specificity",
+                    "pattern_interrupt",
                     "clarity",
-                    "information_gap",
                     "emotional_pull",
                     "retention_potential",
                     "platform_fit",
+                    "proof_awareness",
                 ],
             },
         }
+
+    @staticmethod
+    def _candidate(
+        hook: str,
+        hook_type: str,
+        rationale: str,
+    ) -> dict[str, Any]:
+
+        return {
+            "hook": hook.strip(),
+            "type": hook_type,
+            "rationale": rationale,
+        }
+
+    def _score_hook(
+        self,
+        *,
+        hook: str,
+        hook_type: str,
+        platform: str,
+        proof_available: bool,
+        desired_outcome: str,
+    ) -> dict[str, Any]:
+
+        text = hook.strip()
+        lower = text.lower()
+
+        desire_words = (
+            "want",
+            "get",
+            "grow",
+            "save",
+            "learn",
+            "build",
+            "reach",
+            "make",
+            "without",
+            "faster",
+        )
+
+        curiosity_words = (
+            "what",
+            "why",
+            "how",
+            "miss",
+            "actually",
+            "instead",
+            "test",
+        )
+
+        character_words = (
+            "you're",
+            "you are",
+            "creator",
+            "beginner",
+            "student",
+            "founder",
+            "business",
+            "person",
+        )
+
+        specificity_score = 6
+
+        if len(text.split()) <= self._platform_limit(platform):
+            specificity_score += 4
+
+        if re.search(r"\d", text):
+            specificity_score += 3
+
+        if desired_outcome and desired_outcome.lower() in lower:
+            specificity_score += 2
+
+        desire_score = min(
+            20,
+            8
+            + sum(
+                2 for word in desire_words
+                if word in lower
+            ),
+        )
+
+        character_score = min(
+            15,
+            5
+            + sum(
+                2 for word in character_words
+                if word in lower
+            ),
+        )
+
+        curiosity_score = min(
+            15,
+            5
+            + sum(
+                2 for word in curiosity_words
+                if word in lower
+            ),
+        )
+
+        pattern_score = 12 if hook_type == "pattern_interrupt" else 6
+
+        clarity_score = 10
+
+        if len(text.split()) > self._platform_limit(platform) + 5:
+            clarity_score -= 4
+
+        if any(opener in lower for opener in self.GENERIC_OPENERS):
+            clarity_score -= 5
+
+        emotional_score = 8
+
+        if hook_type in {
+            "desire",
+            "character_desire",
+            "emotional",
+            "story",
+        }:
+            emotional_score += 4
+
+        platform_score = 8
+
+        rules = self.PLATFORM_RULES.get(
+            platform,
+            self.PLATFORM_RULES["youtube"],
+        )
+
+        if rules["priority"].split("+")[0].strip() in hook_type:
+            platform_score += 2
+
+        proof_score = 5
+
+        if proof_available:
+            proof_score = 8
+
+        total = min(
+            100,
+            desire_score
+            + character_score
+            + curiosity_score
+            + specificity_score
+            + pattern_score
+            + clarity_score
+            + emotional_score
+            + platform_score
+            + proof_score,
+        )
+
+        return {
+            "total": int(total),
+            "desire_strength": int(desire_score),
+            "relatable_character": int(character_score),
+            "curiosity": int(curiosity_score),
+            "specificity": int(specificity_score),
+            "pattern_interrupt": int(pattern_score),
+            "clarity": int(clarity_score),
+            "emotional_pull": int(emotional_score),
+            "platform_fit": int(platform_score),
+            "proof_awareness": int(proof_score),
+        }
+
+    @classmethod
+    def _platform_limit(cls, platform: str) -> int:
+        return int(
+            cls.PLATFORM_RULES.get(
+                platform,
+                cls.PLATFORM_RULES["youtube"],
+            )["max_words"]
+        )
+
+    @staticmethod
+    def _extract_desire(
+        *,
+        topic: str,
+        strategy: dict[str, Any],
+        command: str,
+        audience_promise: str,
+    ) -> str:
+
+        for value in (
+            strategy.get("desired_outcome"),
+            strategy.get("desired_result"),
+            strategy.get("goal"),
+            audience_promise,
+        ):
+            if value:
+                cleaned = str(value).strip()
+                if cleaned:
+                    return cleaned.rstrip(".")
+
+        if command:
+            command_lower = command.lower()
+
+            if "grow" in command_lower:
+                return "grow your audience"
+            if "views" in command_lower:
+                return "get more views"
+            if "sales" in command_lower:
+                return "generate more sales"
+            if "followers" in command_lower:
+                return "grow your following"
+            if "money" in command_lower:
+                return "make more money"
+
+        return f"get a useful result from {topic}"
+
+    @staticmethod
+    def _extract_character(
+        *,
+        audience: str,
+        command: str,
+        topic: str,
+    ) -> str:
+
+        if audience:
+            return audience
+
+        text = f"{command} {topic}".lower()
+
+        if "creator" in text:
+            return "a creator trying to grow"
+        if "student" in text:
+            return "a student trying to get ahead"
+        if "business" in text or "business owner" in text:
+            return "a business owner trying to grow"
+        if "founder" in text:
+            return "a founder building from scratch"
+
+        return "someone trying to get ahead"
+
+    @staticmethod
+    def _specificity_signal(
+        *,
+        topic: str,
+        research: dict[str, Any],
+        strategy: dict[str, Any],
+    ) -> str:
+
+        for source in (
+            research.get("findings"),
+            research.get("evidence"),
+            strategy.get("content_angle"),
+        ):
+            if isinstance(source, str) and source.strip():
+                return source.strip()[:120]
+
+            if isinstance(source, list) and source:
+                return str(source[0])[:120]
+
+        return topic
+
+    # =========================================================
+    # OPENAI ENGINE
+    # =========================================================
 
     def _generate_openai_hooks(
         self,
@@ -243,9 +558,7 @@ class HookService:
         research: dict[str, Any],
         strategy: dict[str, Any],
     ) -> dict[str, Any]:
-        """
-        Generate and score hooks using the configured OpenAI model.
-        """
+
         if not settings.openai_api_key:
             raise ValueError(
                 "OPENAI_API_KEY is not configured."
@@ -255,8 +568,7 @@ class HookService:
             from openai import OpenAI
         except ImportError as exc:
             raise RuntimeError(
-                "The OpenAI package is not installed in the backend "
-                "environment."
+                "The OpenAI package is not installed in the backend environment."
             ) from exc
 
         client = OpenAI(
@@ -264,10 +576,16 @@ class HookService:
         )
 
         prompt = f"""
-You are N1MOX30's expert hook intelligence agent.
+You are N1MOX30 Hook Intelligence Engine V2.
 
-Generate high-quality opening hooks using the supplied research and
-content strategy.
+Your job is to create hooks that feel written by a highly experienced
+human creator, not generic AI copy.
+
+PRIMARY PRINCIPLE:
+Lead with the viewer's desired outcome whenever appropriate.
+
+Then make the viewer feel:
+"I need to know what happens next."
 
 Topic:
 {topic}
@@ -284,27 +602,72 @@ Research:
 Strategy:
 {json.dumps(strategy, indent=2, default=str)}
 
-Generate exactly 7 hooks.
+Generate 9 distinct hooks.
 
-Use these hook types exactly once each:
+Required hook types:
+1. desire
+2. character_desire
+3. curiosity
+4. story
+5. contrarian
+6. emotional
+7. pattern_interrupt
+8. problem
+9. information_gap
 
-1. curiosity
-2. story
-3. contrarian
-4. emotional
-5. pattern_interrupt
-6. problem
-7. information_gap
+Every hook must:
+- feel natural when spoken aloud
+- be specific to the topic
+- avoid generic AI wording
+- avoid fake urgency
+- avoid fabricated statistics
+- avoid fabricated proof
+- avoid unsupported income/results claims
+- avoid "you won't believe"
+- avoid "this changes everything"
+- avoid empty superlatives
+- create a reason to continue watching
+- fit the target platform
+- preferably expose a desired outcome, identity, tension, or unanswered question
 
-Return ONLY valid JSON in this structure:
+For character_desire hooks, use a recognizable audience identity
+only when supported by the strategy/research.
+
+For proof-aware hooks, only use proof that actually exists in the
+supplied research.
+
+Score every hook from 0-100 using:
+- desire strength
+- relatable character
+- curiosity
+- specificity
+- pattern interruption
+- clarity
+- emotional pull
+- retention potential
+- platform fit
+- proof awareness
+
+Return ONLY valid JSON:
 
 {{
   "hooks": [
     {{
       "hook": "...",
-      "type": "curiosity",
+      "type": "...",
       "score": 0,
-      "rationale": "..."
+      "rationale": "...",
+      "score_breakdown": {{
+        "desire_strength": 0,
+        "relatable_character": 0,
+        "curiosity": 0,
+        "specificity": 0,
+        "pattern_interrupt": 0,
+        "clarity": 0,
+        "emotional_pull": 0,
+        "platform_fit": 0,
+        "proof_awareness": 0
+      }}
     }}
   ],
   "recommended_hook": {{
@@ -314,27 +677,22 @@ Return ONLY valid JSON in this structure:
     "rationale": "..."
   }},
   "scoring": {{
-    "method": "ai_evaluation",
+    "method": "hook_intelligence_v2",
     "scale": "0-100",
     "factors": [
+      "desire_strength",
+      "relatable_character",
       "curiosity",
+      "specificity",
+      "pattern_interrupt",
       "clarity",
-      "information_gap",
       "emotional_pull",
       "retention_potential",
-      "platform_fit"
+      "platform_fit",
+      "proof_awareness"
     ]
   }}
 }}
-
-Requirements:
-
-- Scores must be integers from 0 to 100.
-- Rank the strongest hook as recommended_hook.
-- Hooks must be engaging without misleading claims.
-- Do not invent statistics or facts.
-- Do not claim live research.
-- Make hooks suitable for the target platform.
 """
 
         response = client.chat.completions.create(
@@ -343,7 +701,7 @@ Requirements:
                 {
                     "role": "system",
                     "content": (
-                        "You are N1MOX30's hook intelligence agent. "
+                        "You are N1MOX30's Hook Intelligence Engine V2. "
                         "Return valid JSON only."
                     ),
                 },
@@ -352,7 +710,7 @@ Requirements:
                     "content": prompt.strip(),
                 },
             ],
-            temperature=0.8,
+            temperature=0.85,
             response_format={
                 "type": "json_object",
             },
@@ -364,16 +722,13 @@ Requirements:
 
         result["provider"] = "openai"
         result["hook_status"] = "generated"
+        result["engine_version"] = "2.0"
 
         return result
 
     @staticmethod
-    def _parse_json(
-        text: str,
-    ) -> dict[str, Any]:
-        """
-        Parse an AI JSON response.
-        """
+    def _parse_json(text: str) -> dict[str, Any]:
+
         cleaned = text.strip()
 
         if cleaned.startswith("```"):
@@ -401,6 +756,10 @@ Requirements:
 
         return result
 
+    # =========================================================
+    # NORMALIZATION / CONTRACT SAFETY
+    # =========================================================
+
     def _normalize_result(
         self,
         *,
@@ -409,9 +768,7 @@ Requirements:
         platform: str,
         command: str,
     ) -> dict[str, Any]:
-        """
-        Guarantee a stable hook output contract.
-        """
+
         normalized = dict(result)
 
         normalized["topic"] = topic
@@ -426,6 +783,11 @@ Requirements:
         normalized.setdefault(
             "hook_status",
             "generated",
+        )
+
+        normalized.setdefault(
+            "engine_version",
+            "2.0",
         )
 
         normalized.setdefault(
@@ -473,6 +835,14 @@ Requirements:
                 min(100, score),
             )
 
+            breakdown = item.get(
+                "score_breakdown",
+                {},
+            )
+
+            if not isinstance(breakdown, dict):
+                breakdown = {}
+
             valid_hooks.append(
                 {
                     "hook": hook_text,
@@ -484,6 +854,7 @@ Requirements:
                             "",
                         )
                     ).strip(),
+                    "score_breakdown": breakdown,
                 }
             )
 
@@ -507,6 +878,7 @@ Requirements:
                     "type": "",
                     "score": 0,
                     "rationale": "",
+                    "score_breakdown": {},
                 }
             )
 
@@ -515,7 +887,7 @@ Requirements:
         normalized.setdefault(
             "scoring",
             {
-                "method": "unknown",
+                "method": "hook_intelligence_v2",
                 "scale": "0-100",
                 "factors": [],
             },
