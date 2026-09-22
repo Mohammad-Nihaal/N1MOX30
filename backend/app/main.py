@@ -1,4 +1,4 @@
-﻿from app.api.production import router as production_router
+from app.api.production import router as production_router
 from app.api.production_pipeline import router as batch21_production_router
 from app.services.batch11.security_hardening import security_middleware
 from app.api.platform_v2 import router as platform_v2_router
@@ -229,7 +229,7 @@ app.mount("/media", StaticFiles(directory="storage/media", check_dir=False), nam
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
+    allow_origins=["https://n1mox30.pages.dev",
         settings.frontend_url,
         "http://localhost:3000",
         "http://127.0.0.1:3000",
