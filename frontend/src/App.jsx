@@ -1,4 +1,4 @@
-﻿import N1MOXVoiceAssistant from "./components/N1MOXVoiceAssistant";
+import N1MOXVoiceAssistant from "./components/N1MOXVoiceAssistant";
 import {
   BrowserRouter,
   Link,
@@ -187,42 +187,60 @@ function HomeRoute() {
 function AppRoutes() {
   return (
     <Routes>
+
+      {/* Public */}
       <Route path="/" element={<HomeRoute />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/pricing" element={<Pricing />} />
 
+      <Route path="/about" element={<AboutPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/cookies" element={<CookiePage />} />
+      <Route path="/data-request" element={<DataRequestPage />} />
+      <Route path="/help" element={<HelpPage />} />
+
+      {/* Protected N1MOX30 application */}
       <Route
-        path="/"
+        path="/app"
         element={
           <ProtectedRoute>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
+        <Route index element={<Dashboard />} />
+
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="accounts" element={<Accounts />} />
-        <Route path="ai-history" element={<AIHistory />} />
-        <Route path="ai-studio" element={<AIStudio />} />
-        <Route path="analytics" element={<Analytics />} />
         <Route path="assistant" element={<Assistant />} />
-        <Route path="creator-profile" element={<CreatorProfile />} />
-        <Route path="growth" element={<Growth />} />
-        <Route path="research" element={<Research />} />
-        <Route path="schedules" element={<Schedules />} />
-        <Route path="youtube" element={<YouTube />} />
         <Route path="create" element={<Create />} />
         <Route path="workflows" element={<Workflows />} />
         <Route path="intelligence" element={<Intelligence />} />
-        <Route path="notifications" element={<Notifications />} />
-        <Route path="settings" element={<Settings />} />
-        <Route path="byok" element={<BYOK />} />
-        <Route path="billing" element={<Billing />} />
+        <Route path="research" element={<Research />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="growth" element={<Growth />} />
         <Route path="publishing" element={<PublishingCenter />} />
         <Route path="daily-workspace" element={<DailyWorkspace />} />
+        <Route path="schedules" element={<Schedules />} />
+        <Route path="ai-studio" element={<AIStudio />} />
+        <Route path="ai-history" element={<AIHistory />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="accounts" element={<Accounts />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="creator-profile" element={<CreatorProfile />} />
+        <Route path="youtube" element={<YouTube />} />
+        <Route path="byok" element={<BYOK />} />
+        <Route path="billing" element={<Billing />} />
         <Route path="creator-os-live" element={<CreatorOSLive />} />
-        <Route index element={<Dashboard />} />
+
+        <Route path="*" element={<Navigate to="/app" replace />} />
       </Route>
+
+      {/* Public fallback */}
+      <Route path="*" element={<NotFoundPage />} />
+
     </Routes>
   );
 }
