@@ -193,41 +193,39 @@ function AppRoutes() {
       <Route path="/pricing" element={<Pricing />} />
 
       <Route
-        path="/*"
+        path="/"
         element={
           <ProtectedRoute>
-            <DashboardLayout>
-              <Routes>
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/accounts" element={<Accounts />} />
-                <Route path="/ai-history" element={<AIHistory />} />
-                <Route path="/ai-studio" element={<AIStudio />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/assistant" element={<Assistant />} />
-                <Route path="/creator-profile" element={<CreatorProfile />} />
-                <Route path="/growth" element={<Growth />} />
-                <Route path="/research" element={<Research />} />
-                <Route path="/schedules" element={<Schedules />} />
-                <Route path="/youtube" element={<YouTube />} />
-                <Route path="/create" element={<Create />} />
-                <Route path="/workflows" element={<Workflows />} />
-                <Route path="/intelligence" element={<Intelligence />} />
-                <Route path="/notifications" element={<Notifications />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/byok" element={<BYOK />} />
-                <Route path="/billing" element={<Billing />} />
-                <Route path="/publishing" element={<PublishingCenter />} />
-                <Route path="/daily-workspace" element={<DailyWorkspace />} />
-                <Route path="/creator-os-live" element={<CreatorOSLive />} />
-              </Routes>
-            </DashboardLayout>
+            <DashboardLayout />
           </ProtectedRoute>
         }
-      />
+      >
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="accounts" element={<Accounts />} />
+        <Route path="ai-history" element={<AIHistory />} />
+        <Route path="ai-studio" element={<AIStudio />} />
+        <Route path="analytics" element={<Analytics />} />
+        <Route path="assistant" element={<Assistant />} />
+        <Route path="creator-profile" element={<CreatorProfile />} />
+        <Route path="growth" element={<Growth />} />
+        <Route path="research" element={<Research />} />
+        <Route path="schedules" element={<Schedules />} />
+        <Route path="youtube" element={<YouTube />} />
+        <Route path="create" element={<Create />} />
+        <Route path="workflows" element={<Workflows />} />
+        <Route path="intelligence" element={<Intelligence />} />
+        <Route path="notifications" element={<Notifications />} />
+        <Route path="settings" element={<Settings />} />
+        <Route path="byok" element={<BYOK />} />
+        <Route path="billing" element={<Billing />} />
+        <Route path="publishing" element={<PublishingCenter />} />
+        <Route path="daily-workspace" element={<DailyWorkspace />} />
+        <Route path="creator-os-live" element={<CreatorOSLive />} />
+        <Route index element={<Dashboard />} />
+      </Route>
     </Routes>
   );
 }
-
 function App() {
   return (
     <BrowserRouter>
@@ -240,4 +238,5 @@ function App() {
 
 
 export default App;
+
 
