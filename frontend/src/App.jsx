@@ -1,4 +1,4 @@
-import N1MOXVoiceAssistant from "./components/N1MOXVoiceAssistant";
+﻿import N1MOXVoiceAssistant from "./components/N1MOXVoiceAssistant";
 import {
   BrowserRouter,
   Link,
@@ -29,6 +29,8 @@ import Workflows from "./pages/Workflows";
 import Intelligence from "./pages/Intelligence";
 import Notifications from "./pages/Notifications";
 import Settings from "./pages/Settings";
+import BYOK from "./pages/BYOK";
+import Billing from "./pages/Billing";
 import PublishingCenter from "./pages/PublishingCenter";
 import DailyWorkspace from "./pages/DailyWorkspace";
 
@@ -175,7 +177,7 @@ function HomeRoute() {
             className="landing-primary-btn"
           >
             Build your first workflow
-            <span>Ã¢â€ â€™</span>
+            <span>ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</span>
           </Link>
 
           <a
@@ -188,13 +190,13 @@ function HomeRoute() {
 
         <div className="landing-proof">
           <span>Research</span>
-          <i>Ã‚Â·</i>
+          <i>Ãƒâ€šÃ‚Â·</i>
           <span>Script</span>
-          <i>Ã‚Â·</i>
+          <i>Ãƒâ€šÃ‚Â·</i>
           <span>Voice</span>
-          <i>Ã‚Â·</i>
+          <i>Ãƒâ€šÃ‚Â·</i>
           <span>Visuals</span>
-          <i>Ã‚Â·</i>
+          <i>Ãƒâ€šÃ‚Â·</i>
           <span>Publish</span>
         </div>
       </section>
@@ -213,7 +215,7 @@ function HomeRoute() {
           <div className="product-topbar">
             <span>N1MOX30</span>
             <span>Creator Command Center</span>
-            <span>Ã¢â€”Â Live</span>
+            <span>ÃƒÂ¢Ã¢â‚¬â€Ã‚Â Live</span>
           </div>
 
           <div className="product-grid">
@@ -435,7 +437,7 @@ function HomeRoute() {
               </p>
 
               <b>
-                Ã¢â€ â€™
+                ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢
               </b>
             </article>
           ))}
@@ -493,7 +495,7 @@ function HomeRoute() {
               key={title}
             >
               <span>
-                Ã¢Å“Â¦
+                ÃƒÂ¢Ã…â€œÃ‚Â¦
               </span>
 
               <h3>
@@ -577,7 +579,7 @@ function HomeRoute() {
           </div>
 
           <Link to="/register">
-            Create account Ã¢â€ â€™
+            Create account ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢
           </Link>
         </div>
       </section>
@@ -607,7 +609,7 @@ function HomeRoute() {
           className="landing-primary-btn"
         >
           Enter N1MOX30
-          <span>Ã¢â€ â€™</span>
+          <span>ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢</span>
         </Link>
       </section>
 
@@ -679,7 +681,7 @@ function HomeRoute() {
 
         <div className="footer-bottom">
           <span>
-            Ã‚Â© 2026 N1MOX30. All rights reserved.
+            Ãƒâ€šÃ‚Â© 2026 N1MOX30. All rights reserved.
           </span>
 
           <span>
@@ -905,4 +907,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 

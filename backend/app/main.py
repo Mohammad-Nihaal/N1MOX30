@@ -8,6 +8,7 @@ from app.api.wake_word import router as wake_word_router
 from app.api.voice import router as voice_router
 from app.api.voice_assistant import router as voice_assistant_router
 from fastapi import FastAPI
+from app.api.byok import router as byok_router
 from app.api.platform_v3 import router as platform_v3_router
 from app.api.provider_execution import router as provider_execution_router
 from app.api.provider_runtime import router as provider_runtime_router
@@ -200,6 +201,7 @@ if settings.auto_create_tables:
 
 from app.api.oauth import router as oauth_router
 
+from app.api.billing import router as billing_router
 app = FastAPI(
     title=settings.app_name,
     description=(
@@ -536,6 +538,19 @@ app.include_router(creator_e2e_report_router)
 
 
 
+
+
+
+
+
+app.include_router(byok_router)
+# N1MOX30 Billing direct route attachment
+# The billing router is already constructed with its /billing prefix.
+# Attach its concrete routes after the complete router-registration
+# sequence so they remain present in the final FastAPI route table.
+for _billing_route in billing_router.routes:
+    if _billing_route not in app.router.routes:
+        app.router.routes.append(_billing_route)
 
 
 

@@ -1,41 +1,54 @@
-import { useState, useCallback, useEffect } from 'react';
-import { AlertCircle, CheckCircle2, ExternalLink, RefreshCw, Unplug, Video, Music2 } from "lucide-react";
+﻿import { AlertCircle, Camera, CheckCircle2, Plus, RefreshCw, Unplug, Video } from "lucide-react";
 import api from "../api/client";
+
+const PLATFORM_LIMITS = {
+  youtube: 2,
+  instagram: 2,
+  x: 2,
+};
 
 const PLATFORMS = [
   {
-    id: "Video",
-    name: "Video",
+    id: "youtube",
+    name: "YouTube",
     icon: Video,
     description:
-      "Channel analytics, uploads, scheduling and growth intelligence.",
+      "Channel analytics, publishing, scheduling and creator growth intelligence.",
   },
   {
-    id: "Music2",
-    name: "Music2",
-    icon: Music2,
+    id: "instagram",
+    name: "Instagram",
+    icon: Camera,
     description:
-      "Professional account publishing, creator analytics and audience growth.",
-  },
-  {
-    id: "tiktok",
-    name: "TikTok",
-    icon: Music2,
-    description:
-      "Short-form video publishing and creator performance intelligence.",
+      "Professional creator publishing, content distribution and audience intelligence.",
   },
   {
     id: "x",
     name: "X",
-    icon: Music2,
+    icon: Video,
     description:
-      "Posts, account metrics and unified distribution.",
+      "Posts, distribution, account metrics and unified publishing.",
   },
 ];
+
+function normalizePlatform(platform) {
+  const value = String(platform || "").toLowerCase();
+
+  if (value === "video" || value === "youtube") {
+    return "youtube";
+  }
+
+  if (value === "music2" || value === "instagram") {
+    return "instagram";
+  }
+
+  return value;
+}
 
 export default function Accounts() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [connecting, setConnecting] = useState("");
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
@@ -56,42 +69,42 @@ export default function Accounts() {
   }, []);
 
   useEffect(() => {
-    let cancelled = false;
+    load();
+  }, [load]);
 
-    async function initialLoad() {
-      setLoading(true);
-      setError("");
+  const groupedAccounts = useMemo(() => {
+    const groups = {
+      youtube: [],
+      instagram: [],
+      x: [],
+    };
 
-      try {
-        const response = await api.get("/connected-accounts");
+    for (const account of accounts) {
+      const platform = normalizePlatform(account.platform);
 
-        if (!cancelled) {
-          setAccounts(
-            Array.isArray(response.data) ? response.data : []
-          );
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(
-            e?.response?.data?.detail ||
-              "Unable to load connected accounts."
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+      if (
+        Object.prototype.hasOwnProperty.call(groups, platform) &&
+        account.is_active
+      ) {
+        groups[platform].push(account);
       }
     }
 
-    initialLoad();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    return groups;
+  }, [accounts]);
 
   async function connect(platform) {
+    const current = groupedAccounts[platform] || [];
+    const limit = PLATFORM_LIMITS[platform] || 2;
+
+    if (current.length >= limit) {
+      setError(
+        `${platform} account limit reached. You can connect up to ${limit} accounts.`
+      );
+      return;
+    }
+
+    setConnecting(platform);
     setError("");
 
     try {
@@ -102,21 +115,21 @@ export default function Accounts() {
       const authorizationUrl =
         response.data?.authorization_url;
 
-      if (authorizationUrl) {
-        window.open(
-          authorizationUrl,
-          "_self",
-          "noopener,noreferrer"
+      if (!authorizationUrl) {
+        setError(
+          `${platform} OAuth did not return an authorization URL.`
         );
         return;
       }
 
-      setError("Authorization URL was not returned.");
+      window.location.assign(authorizationUrl);
     } catch (e) {
       setError(
         e?.response?.data?.detail ||
-          `${platform} OAuth is not configured.`
+          `${platform} OAuth is not configured yet.`
       );
+    } finally {
+      setConnecting("");
     }
   }
 
@@ -145,7 +158,8 @@ export default function Accounts() {
           <span className="page-eyebrow">PLATFORM HUB</span>
           <h1>Connected Accounts</h1>
           <p>
-            One identity layer for every creator platform in N1MOX30.
+            Connect multiple creator accounts and manage them
+            from one N1MOX30 workspace.
           </p>
         </div>
 
@@ -172,14 +186,9 @@ export default function Accounts() {
       <div className="accounts-grid">
         {PLATFORMS.map((platform) => {
           const Icon = platform.icon;
-
-          const account = accounts.find(
-            (item) =>
-              item.platform === platform.id &&
-              item.is_active
-          );
-
-          const connected = Boolean(account?.is_authorized);
+          const connected =
+            groupedAccounts[platform.id] || [];
+          const limit = PLATFORM_LIMITS[platform.id];
 
           return (
             <div
@@ -193,16 +202,9 @@ export default function Accounts() {
                   <Icon size={25} />
                 </div>
 
-                {connected ? (
-                  <span className="account-status connected">
-                    <CheckCircle2 size={15} />
-                    Connected
-                  </span>
-                ) : (
-                  <span className="account-status">
-                    Not connected
-                  </span>
-                )}
+                <span className="account-status">
+                  {connected.length}/{limit} slots
+                </span>
               </div>
 
               <div className="account-card-content">
@@ -210,36 +212,103 @@ export default function Accounts() {
                 <p>{platform.description}</p>
               </div>
 
-              {connected ? (
-                <>
-                  <div className="connected-account-info">
-                    <strong>
-                      {account.account_name || platform.name}
-                    </strong>
+              <div
+                style={{
+                  display: "grid",
+                  gap: 10,
+                  marginTop: 14,
+                }}
+              >
+                {Array.from({ length: limit }).map(
+                  (_, index) => {
+                    const account = connected[index];
 
-                    <span>
-                      {account.platform_account_id}
-                    </span>
-                  </div>
+                    if (!account) {
+                      return (
+                        <div
+                          key={`${platform.id}-empty-${index}`}
+                          className="connected-account-info"
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between",
+                            gap: 12,
+                          }}
+                        >
+                          <span>
+                            Account {index + 1} — Available
+                          </span>
 
-                  <button
-                    className="danger-button"
-                    onClick={() => disconnect(account.id)}
-                  >
-                    <Unplug size={16} />
-                    Disconnect
-                  </button>
-                </>
-              ) : (
-                <button
-                  className="primary-button"
-                  onClick={() => connect(platform.id)}
-                  disabled={loading}
-                >
-                  <ExternalLink size={16} />
-                  Connect {platform.name}
-                </button>
-              )}
+                          <button
+                            className="primary-button"
+                            onClick={() =>
+                              connect(platform.id)
+                            }
+                            disabled={
+                              loading ||
+                              connecting === platform.id ||
+                              connected.length >= limit
+                            }
+                          >
+                            <Plus size={16} />
+                            {connecting === platform.id
+                              ? "Connecting..."
+                              : "Connect"}
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={account.id}
+                        className="connected-account-info"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          gap: 12,
+                        }}
+                      >
+                        <div>
+                          <strong>
+                            {account.account_name ||
+                              `${platform.name} Account ${index + 1}`}
+                          </strong>
+
+                          <span
+                            style={{
+                              display: "block",
+                              marginTop: 3,
+                            }}
+                          >
+                            {account.platform_account_id ||
+                              "Connected account"}
+                          </span>
+                        </div>
+
+                        <span
+                          className="account-status connected"
+                          style={{ whiteSpace: "nowrap" }}
+                        >
+                          <CheckCircle2 size={15} />
+                          Connected
+                        </span>
+
+                        <button
+                          className="danger-button"
+                          onClick={() =>
+                            disconnect(account.id)
+                          }
+                        >
+                          <Unplug size={16} />
+                          Disconnect
+                        </button>
+                      </div>
+                    );
+                  }
+                )}
+              </div>
             </div>
           );
         })}
@@ -255,24 +324,21 @@ export default function Accounts() {
         <div className="n1-section-heading">
           <div>
             <CheckCircle2 size={18} />
-            <span>Unified publishing</span>
+            <span>Owner account allowance</span>
           </div>
         </div>
 
         <p className="muted">
-          After connecting accounts, use Publishing Center to
-          send one finished asset through the platform adapters.
-          Platform approval, developer credentials, verified
-          domains and app-store signing remain external account
-          requirements.
+          N1MOX30 supports up to two connected YouTube,
+          Instagram and X accounts per workspace. N1MOX30
+          does not charge a separate connection fee for these
+          owner slots. Platform API quotas, developer approval,
+          OAuth availability and any external platform charges
+          remain controlled by the respective platforms.
         </p>
       </div>
     </div>
   );
 }
-
-
-
-
 
 
