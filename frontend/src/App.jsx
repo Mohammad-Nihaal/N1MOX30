@@ -193,13 +193,14 @@ function AppRoutes() {
       <Route path="/pricing" element={<Pricing />} />
 
       <Route
-        path="/"
+        path="/app"
         element={
           <ProtectedRoute>
             <DashboardLayout />
           </ProtectedRoute>
         }
       >
+        <Route index element={<Dashboard />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="accounts" element={<Accounts />} />
         <Route path="ai-history" element={<AIHistory />} />
@@ -221,8 +222,9 @@ function AppRoutes() {
         <Route path="publishing" element={<PublishingCenter />} />
         <Route path="daily-workspace" element={<DailyWorkspace />} />
         <Route path="creator-os-live" element={<CreatorOSLive />} />
-        <Route index element={<Dashboard />} />
       </Route>
+
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }
@@ -238,5 +240,6 @@ function App() {
 
 
 export default App;
+
 
 
