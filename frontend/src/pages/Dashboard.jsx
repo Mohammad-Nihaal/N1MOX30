@@ -4,26 +4,26 @@ const navGroups = [
   {
     label: "WORKSPACE",
     items: [
-      ["Dashboard", "◆"]
-      ["N1MOX Assistant", "◆"]
-      ["Create", "◉"]
-      ["Workflows", "+"]
+      ["Dashboard", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦"],
+      ["N1MOX Assistant", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â°"],
+      ["Create", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦"],
+      ["Workflows", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ"],
     ],
   },
   {
     label: "INTELLIGENCE",
     items: [
-      ["Intelligence", "↗"]
-      ["Research", "◆"]
-      ["Analytics", "◆"]
-      ["Growth", "◉"]
+      ["Intelligence", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒâ€¹Ã¢â‚¬ "],
+      ["Research", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢"],
+      ["Analytics", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¥"],
+      ["Growth", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â"],
     ],
   },
   {
     label: "PUBLISH",
     items: [
-      ["YouTube", "▶"]
-      ["Publishing Center", "↗"]
+      ["YouTube", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶"],
+      ["Publishing Center", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¾Ãƒâ€šÃ‚Â¤"],
     ],
   },
 ];
@@ -142,7 +142,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <div className="sidebar-version">v1.0 ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚· Creator Intelligence</div>
+        <div className="sidebar-version">v1.0 ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· Creator Intelligence</div>
       </aside>
 
       <main className="nimox-main">
@@ -150,18 +150,18 @@ export default function Dashboard() {
           <div className="top-brand">N1MOX30</div>
 
           <div className="search-box">
-            <span>ÃƒÆ’Ã‚Â¢Ãƒ…Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢</span>
+            <span>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢</span>
             <input
               placeholder="Search content, workflows, insights..."
               aria-label="Search"
             />
-            <kbd>ÃƒÆ’Ã‚Â¢Ãƒ…Ã¢â‚¬â„¢Ãƒâ€¹Ã…“ K</kbd>
+            <kbd>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ K</kbd>
           </div>
 
           <div className="top-actions">
-            <button className="theme-toggle active">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬”Ãƒâ€šÃ‚Â Dark</button>
-            <button className="theme-toggle">ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…“Ãƒâ€šÃ‚Â¼ Light</button>
-            <button className="icon-button">ÃƒÆ’Ã‚Â¢Ãƒ…“Ãƒâ€šÃ‚Â£</button>
+            <button className="theme-toggle active">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒâ€šÃ‚Â Dark</button>
+            <button className="theme-toggle">ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…â€œÃƒâ€šÃ‚Â¼ Light</button>
+            <button className="icon-button">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â£</button>
             <button className="icon-button">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â§</button>
             <button className="create-button">ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¼ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ Create</button>
 
@@ -203,9 +203,9 @@ export default function Dashboard() {
                 <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢</b>
               </button>
 
-              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒ…“Ãƒâ€šÃ‚Â¦ Ask N1MOX <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
+              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦ Ask N1MOX <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
               <button className="hero-secondary">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â§ Research <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
-              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒ…Ã¢â‚¬â„¢Ãƒâ€¹Ã…“ Run workflow <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
+              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ Run workflow <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
             </div>
           </div>
 
@@ -303,7 +303,7 @@ export default function Dashboard() {
 
           <div className="activity-grid">
             <article className="activity-card">
-              <div className="activity-icon youtube">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬“Ãƒâ€šÃ‚Â¶</div>
+              <div className="activity-icon youtube">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶</div>
               <div>
                 <strong>Video script generated</strong>
                 <small>12 minutes ago</small>
@@ -315,7 +315,7 @@ export default function Dashboard() {
             </article>
 
             <article className="activity-card">
-              <div className="activity-icon purple">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬”ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡</div>
+              <div className="activity-icon purple">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡</div>
               <div>
                 <strong>Thumbnail created</strong>
                 <small>28 minutes ago</small>
@@ -327,7 +327,7 @@ export default function Dashboard() {
             </article>
 
             <article className="activity-card">
-              <div className="activity-icon green">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬”</div>
+              <div className="activity-icon green">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</div>
               <div>
                 <strong>Competitor analysis complete</strong>
                 <small>1 hour ago</small>
