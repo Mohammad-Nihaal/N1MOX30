@@ -223,6 +223,7 @@ function AppRoutes() {
         <Route path="growth" element={<Growth />} />
         <Route path="publishing" element={<PublishingCenter />} />
         <Route path="daily-workspace" element={<DailyWorkspace />} />
+        <Route path="daily" element={<DailyWorkspace />} />
         <Route path="schedules" element={<Schedules />} />
         <Route path="ai-studio" element={<AIStudio />} />
         <Route path="ai-history" element={<AIHistory />} />
@@ -256,5 +257,3 @@ function App() {
 
 
 export default App;
-
-

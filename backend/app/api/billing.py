@@ -21,13 +21,13 @@ PLANS: dict[str, dict[str, Any]] = {
         "id": "creator",
         "name": "Creator",
         "amount_inr": int(os.getenv("RAZORPAY_CREATOR_AMOUNT_INR", "1599")),
-        "videos": 12,
+        "videos": 27,
     },
     "pro": {
         "id": "pro",
         "name": "Pro",
         "amount_inr": int(os.getenv("RAZORPAY_PRO_AMOUNT_INR", "4099")),
-        "videos": 33,
+        "videos": 72,
     },
     "studio": {
         "id": "studio",

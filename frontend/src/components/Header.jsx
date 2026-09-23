@@ -21,9 +21,7 @@ function getInitialTheme() {
     return saved;
   }
 
-  return window.matchMedia?.("(prefers-color-scheme: light)").matches
-    ? "light"
-    : "dark";
+  return "light";
 }
 
 function getStoredUser() {
