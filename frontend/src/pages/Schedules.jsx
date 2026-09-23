@@ -465,7 +465,7 @@ function Schedules() {
                   </strong>
 
                   <span>
-                    {schedule.schedule_type || "daily"} â€¢{" "}
+                    {schedule.schedule_type || "daily"} •{" "}
                     {formatTime(
                       schedule.hour ?? 0,
                       schedule.minute ?? 0

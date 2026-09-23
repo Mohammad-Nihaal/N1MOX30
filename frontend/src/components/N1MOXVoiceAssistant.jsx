@@ -12,7 +12,7 @@ export default function N1MOXVoiceAssistant() {
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [response, setResponse] = useState(
-    "Say Ã¢â‚¬Å“Hey N1MOXÃ¢â‚¬Â to control your creator workflow."
+    "Say “Hey N1MOX” to control your creator workflow."
   );
   const [error, setError] = useState("");
 
@@ -158,7 +158,7 @@ export default function N1MOXVoiceAssistant() {
       recognitionRef.current.start();
       setListening(true);
       setResponse(
-        "Listening for Ã¢â‚¬Å“Hey N1MOXÃ¢â‚¬Â..."
+        "Listening for “Hey N1MOX”..."
       );
     } catch (err) {
       setError(err.message);
@@ -267,7 +267,7 @@ export default function N1MOXVoiceAssistant() {
         }}
       >
         <strong>Transcript:</strong>{" "}
-        {transcript || "Ã¢â‚¬â€"}
+        {transcript || "Ã¢â‚¬”"}
       </div>
 
       <div

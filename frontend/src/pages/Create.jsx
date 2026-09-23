@@ -32,7 +32,7 @@ export default function Create() {
     <form className="glass-card create-form" onSubmit={createWorkflow}>
       <label>What should N1MOX create?</label>
       <textarea value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Example: AI replacing traditional jobs" rows={6} />
-      <div className="form-row"><select value={platform} onChange={(e) => setPlatform(e.target.value)}><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select><button disabled={busy}>{busy ? "Preparingâ€¦" : "Start full workflow"}</button></div>
+      <div className="form-row"><select value={platform} onChange={(e) => setPlatform(e.target.value)}><option value="youtube">YouTube</option><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select><button disabled={busy}>{busy ? "Preparing…" : "Start full workflow"}</button></div>
       {result && <pre className="result-box">{JSON.stringify(result, null, 2)}</pre>}
     </form>
   </section>;

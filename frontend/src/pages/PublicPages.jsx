@@ -31,7 +31,7 @@ export function Seo({ title, description, canonical }) {
 
 const shell = (title, eyebrow, children, description) => (
   <main className="nm-public-shell">
-    <Seo title={`${title} Ã¢â‚¬â€ N1MOX30`} description={description || `Official ${title} information for N1MOX30.`} />
+    <Seo title={`${title} Ã¢â‚¬” N1MOX30`} description={description || `Official ${title} information for N1MOX30.`} />
     <div className="nm-public-top">
       <Link to="/" className="nm-public-back"><ArrowLeft size={16}/> N1MOX30</Link>
       <Link to="/app" className="nm-public-app">Open app <ArrowUpRight size={15}/></Link>
@@ -81,7 +81,7 @@ export function ContactPage() {
 }
 
 export function PrivacyPage() {
-  return shell("Privacy Policy", "LEGAL Ã‚Â· PRIVACY", <>
+  return shell("Privacy Policy", "LEGAL Ã‚· PRIVACY", <>
     <p className="nm-public-lead">This page is the implementation-ready privacy framework for N1MOX30. Final legal text must match the deployed company, data flows, processors and countries served.</p>
     <h2>What we may process</h2><p>Account information, creator workspace content, connected-platform identifiers and tokens, generated content, usage events, diagnostics and information you voluntarily provide to support.</p>
     <h2>Why we process it</h2><p>To provide the service, authenticate users, operate creator workflows, connect supported platforms, improve reliability, protect accounts, respond to requests and meet applicable legal obligations.</p>
@@ -89,12 +89,12 @@ export function PrivacyPage() {
     <h2>Your choices</h2><p>Depending on applicable law and circumstances, you may have rights concerning access, correction, deletion, portability, objection or consent withdrawal. Contact the deployed privacy channel for requests.</p>
     <h2>Retention & security</h2><p>Keep data only for as long as needed for the stated purpose or applicable legal requirements, with appropriate technical and organizational safeguards.</p>
     <h2>International users</h2><p>N1MOX30 should apply jurisdiction-aware privacy controls where required, including appropriate notices, consent mechanisms, processor disclosures and rights handling. This page is not a claim of universal legal compliance.</p>
-    <div className="nm-public-callout">Last updated: September 2026 Ã‚Â· Final policy owner and legal entity details must be verified before public launch.</div>
+    <div className="nm-public-callout">Last updated: September 2026 Ã‚· Final policy owner and legal entity details must be verified before public launch.</div>
   </>, "N1MOX30 privacy framework covering account, creator, integration and support data.");
 }
 
 export function TermsPage() {
-  return shell("Terms & Conditions", "LEGAL Ã‚Â· TERMS", <>
+  return shell("Terms & Conditions", "LEGAL Ã‚· TERMS", <>
     <p className="nm-public-lead">These implementation terms establish the product framework. They must be reviewed and finalized for the operating company and markets before launch.</p>
     <h2>Use of the service</h2><p>You are responsible for your account, connected platforms, content you provide and actions taken through your workspace.</p>
     <h2>AI-generated output</h2><p>AI output can contain errors. Review generated scripts, metadata, media and publishing actions before relying on them.</p>
@@ -107,7 +107,7 @@ export function TermsPage() {
 }
 
 export function CookiePage() {
-  return shell("Cookie Policy", "LEGAL Ã‚Â· COOKIES", <>
+  return shell("Cookie Policy", "LEGAL Ã‚· COOKIES", <>
     <p className="nm-public-lead">N1MOX30 should distinguish strictly necessary storage from optional analytics, advertising and preference technologies.</p>
     <h2>Necessary</h2><p>Authentication, security, session and essential application functionality may require storage technologies.</p>
     <h2>Preferences</h2><p>Theme and other convenience preferences may be stored where enabled.</p>

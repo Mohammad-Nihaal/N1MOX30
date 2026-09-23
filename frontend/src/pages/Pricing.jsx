@@ -25,7 +25,7 @@ export default function Pricing() {
         <label className="nm-currency">
           <span>Currency</span>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)} aria-label="Pricing currency">
-            {CURRENCIES.map(([code, name]) => <option value={code} key={code}>{code} Ã¢â‚¬â€ {name}</option>)}
+            {CURRENCIES.map(([code, name]) => <option value={code} key={code}>{code} Ã¢â‚¬” {name}</option>)}
           </select>
         </label>
       </div>

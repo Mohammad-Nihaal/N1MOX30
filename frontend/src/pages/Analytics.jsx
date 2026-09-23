@@ -275,7 +275,7 @@ function Analytics() {
                 <div>
                   <p>{platform.toUpperCase()}</p>
                   <h3>{formatNumber(latest?.followers || 0)}</h3>
-                  <span>{item?.authorized ? "Connected" : "Connect account"} Â· {formatNumber(latest?.likes || 0)} likes</span>
+                  <span>{item?.authorized ? "Connected" : "Connect account"} · {formatNumber(latest?.likes || 0)} likes</span>
                 </div>
               </div>
             );
