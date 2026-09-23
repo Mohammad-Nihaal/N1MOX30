@@ -1,351 +1,259 @@
-import "../styles/nimox30-dashboard.css";
+﻿import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  ArrowUpRight,
+  BarChart3,
+  CalendarDays,
+  CheckCircle2,
+  CreditCard,
+  KeyRound,
+  Play,
+  Sparkles,
+  Users,
+  Video,
+} from "lucide-react";
+import api from "../api/client";
 
-const navGroups = [
-  {
-    label: "WORKSPACE",
-    items: [
-      ["Dashboard", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦"],
-      ["N1MOX Assistant", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â°"],
-      ["Create", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦"],
-      ["Workflows", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ"],
-    ],
-  },
-  {
-    label: "INTELLIGENCE",
-    items: [
-      ["Intelligence", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒâ€¹Ã¢â‚¬ "],
-      ["Research", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢"],
-      ["Analytics", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¥"],
-      ["Growth", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â"],
-    ],
-  },
-  {
-    label: "PUBLISH",
-    items: [
-      ["YouTube", "ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶"],
-      ["Publishing Center", "ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã‚Â¾Ãƒâ€šÃ‚Â¤"],
-    ],
-  },
-];
-
-function CyberCharacter({ type, className = "" }) {
-  return (
-    <div className={`nimox-character ${type} ${className}`} aria-hidden="true">
-      <div className="character-aura" />
-      <div className="character-shadow" />
-      <div className="character-head">
-        <span className="character-eye eye-left" />
-        <span className="character-eye eye-right" />
-      </div>
-      <div className="character-neck" />
-      <div className="character-body">
-        <span className="character-core" />
-      </div>
-      <div className="character-arm arm-left" />
-      <div className="character-arm arm-right" />
-      <div className="character-leg leg-left" />
-      <div className="character-leg leg-right" />
-      <div className="character-energy" />
-    </div>
-  );
-}
-
-function MetricCard({ eyebrow, value, label, trend, visual }) {
-  return (
-    <div className="metric-card">
-      <div>
-        <span className="metric-eyebrow">{eyebrow}</span>
-        <strong>{value}</strong>
-        <span className="metric-label">{label}</span>
-      </div>
-
-      {visual === "bars" && (
-        <div className="metric-bars">
-          {[35, 52, 43, 68, 55, 78, 92].map((height, i) => (
-            <i key={i} style={{ height: `${height}%` }} />
-          ))}
-        </div>
-      )}
-
-      {visual === "chart" && (
-        <div className="mini-chart">
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-          <span />
-        </div>
-      )}
-
-      {visual === "ring" && (
-        <div className="health-ring">
-          <div>100%</div>
-        </div>
-      )}
-
-      {trend && <small className="metric-trend">{trend}</small>}
-    </div>
-  );
+function formatNumber(value) {
+  const n = Number(value || 0);
+  if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}K`;
+  return n.toLocaleString();
 }
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+
+  const [dashboard, setDashboard] = useState(null);
+  const [performance, setPerformance] = useState(null);
+  const [insights, setInsights] = useState(null);
+  const [growth, setGrowth] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      try {
+        const [d, p, i, g] = await Promise.allSettled([
+          api.get("/youtube/dashboard"),
+          api.get("/youtube/performance"),
+          api.get("/youtube/insights"),
+          api.get("/youtube/growth-score"),
+        ]);
+
+        if (!active) return;
+
+        setDashboard(d.status === "fulfilled" ? d.value?.data : null);
+        setPerformance(p.status === "fulfilled" ? p.value?.data : null);
+        setInsights(i.status === "fulfilled" ? i.value?.data : null);
+        setGrowth(g.status === "fulfilled" ? g.value?.data : null);
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    load();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const channel = dashboard?.channel || {};
+  const videos = dashboard?.recent_videos || performance?.videos || [];
+
+  const stats = [
+    {
+      label: "Subscribers",
+      value: formatNumber(channel.subscriber_count),
+      note: "Current channel",
+      icon: Users,
+    },
+    {
+      label: "Views",
+      value: formatNumber(channel.view_count),
+      note: "Channel total",
+      icon: Play,
+    },
+    {
+      label: "Videos",
+      value: formatNumber(channel.video_count || videos.length),
+      note: "Published content",
+      icon: Video,
+    },
+    {
+      label: "Growth score",
+      value: growth?.score != null ? `${growth.score}/100` : "—",
+      note: "Creator signal",
+      icon: BarChart3,
+    },
+  ];
+
   return (
-    <div className="nimox-dashboard">
-      <aside className="nimox-sidebar">
-        <div className="brand">
-          <div className="brand-mark">N</div>
-          <div>
-            <strong>N1MOX30</strong>
-            <span>Creator Operating System</span>
-          </div>
+    <div className="nm-clean-dashboard">
+
+      <section className="nm-dash-hero">
+        <div>
+          <p className="nm-eyebrow">CREATOR OPERATING SYSTEM</p>
+
+          <h1>
+            Make content.
+            <br />
+            Let N1MOX30 handle the rest.
+          </h1>
+
+          <p className="nm-hero-copy">
+            One calm workspace for research, creation, publishing and growth.
+          </p>
         </div>
 
-        <div className="nav-scroll">
-          {navGroups.map((group) => (
-            <div className="nav-group" key={group.label}>
-              <div className="nav-label">{group.label}</div>
+        <button
+          className="nm-primary-button"
+          onClick={() => navigate("/app/create")}
+        >
+          <Sparkles size={17} />
+          Create content
+        </button>
+      </section>
 
-              {group.items.map(([name, icon]) => (
-                <button
-                  className={`nav-item ${name === "Dashboard" ? "active" : ""}`}
-                  key={name}
-                  onClick={() => {
-                    const routes = {
-                      Research: "/research",
-                      Analytics: "/analytics",
-                      Growth: "/growth",
-                      YouTube: "/youtube",
-                      "Publishing Center": "/publishing",
-                      Workflows: "/creator-os",
-                    };
-
-                    if (routes[name]) window.location.href = routes[name];
-                  }}
-                >
-                  <span className="nav-icon">{icon}</span>
-                  <span>{name}</span>
-                  <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b>
-                </button>
-              ))}
+      <section className="nm-stat-grid">
+        {stats.map(({ label, value, note, icon: Icon }) => (
+          <article className="nm-stat-card" key={label}>
+            <div className="nm-stat-icon">
+              <Icon size={18} />
             </div>
-          ))}
-        </div>
 
-        <div className="sidebar-status">
-          <div className="status-avatar">
-            <span />
-          </div>
-          <div>
-            <strong>N1MOX AI</strong>
-            <small>Systems operational</small>
-          </div>
-        </div>
+            <span>{label}</span>
+            <strong>{loading ? "..." : value}</strong>
+            <small>{note}</small>
+          </article>
+        ))}
+      </section>
 
-        <div className="sidebar-version">v1.0 ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â· Creator Intelligence</div>
-      </aside>
+      <section className="nm-dashboard-grid">
 
-      <main className="nimox-main">
-        <header className="nimox-topbar">
-          <div className="top-brand">N1MOX30</div>
+        <article className="nm-panel nm-main-panel">
 
-          <div className="search-box">
-            <span>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¢</span>
-            <input
-              placeholder="Search content, workflows, insights..."
-              aria-label="Search"
-            />
-            <kbd>ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ K</kbd>
+          <div className="nm-panel-head">
+            <div>
+              <p className="nm-eyebrow">TODAY</p>
+              <h2>Your creator workspace</h2>
+            </div>
+
+            <button
+              className="nm-text-button"
+              onClick={() => navigate("/app/analytics")}
+            >
+              View analytics
+              <ArrowUpRight size={15} />
+            </button>
           </div>
 
-          <div className="top-actions">
-            <button className="theme-toggle active">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒâ€šÃ‚Â Dark</button>
-            <button className="theme-toggle">ÃƒÆ’Ã‚Â¢Ãƒâ€¹Ã…â€œÃƒâ€šÃ‚Â¼ Light</button>
-            <button className="icon-button">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â£</button>
-            <button className="icon-button">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â§</button>
-            <button className="create-button">ÃƒÆ’Ã‚Â¯Ãƒâ€šÃ‚Â¼ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¹ Create</button>
+          <div className="nm-action-grid">
 
-            <div className="user-chip">
-              <div>N</div>
+            <button onClick={() => navigate("/app/create")}>
+              <Sparkles size={19} />
               <span>
-                <strong>nihaal</strong>
-                <small>Creator workspace</small>
+                <b>Create</b>
+                <small>Turn an idea into content</small>
               </span>
-            </div>
+            </button>
+
+            <button onClick={() => navigate("/app/research")}>
+              <BarChart3 size={19} />
+              <span>
+                <b>Research</b>
+                <small>Find topics worth making</small>
+              </span>
+            </button>
+
+            <button onClick={() => navigate("/app/schedules")}>
+              <CalendarDays size={19} />
+              <span>
+                <b>Schedule</b>
+                <small>Plan your publishing</small>
+              </span>
+            </button>
+
+            <button onClick={() => navigate("/app/accounts")}>
+              <Youtube size={19} />
+              <span>
+                <b>Connect accounts</b>
+                <small>Manage creator platforms</small>
+              </span>
+            </button>
+
           </div>
-        </header>
+        </article>
 
-        <section className="hero">
-          <div className="hero-grid" />
+        <article className="nm-panel nm-side-panel">
 
-          <div className="hero-content">
-            <div className="hero-kicker">
-              <i /> N1MOX30 / COMMAND CENTER
-            </div>
+          <p className="nm-eyebrow">SYSTEM STATUS</p>
+          <h2>Ready when you are.</h2>
 
-            <h1>
-              Make the
-              <br />
-              <em>system move.</em>
-            </h1>
-
-            <p>
-              Your creator operation at a glance ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â intelligence,
-              production and growth.
-            </p>
-
-            <div className="hero-actions">
-              <button className="hero-primary">
-                <span>
-                  <small>START SOMETHING</small>
-                  Create with N1MOX
-                </span>
-                <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢</b>
-              </button>
-
-              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¦ Ask N1MOX <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
-              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢Ãƒâ€šÃ‚Â§ Research <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
-              <button className="hero-secondary">ÃƒÆ’Ã‚Â¢Ãƒâ€¦Ã¢â‚¬â„¢Ãƒâ€¹Ã…â€œ Run workflow <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Âº</b></button>
-            </div>
-          </div>
-
-          <div className="hero-character-zone">
-            <div className="floating-hud hud-one">
-              <span>LIVE</span>
-              CONTENT ENGINE
-            </div>
-
-            <div className="floating-hud hud-two">
-              <span>AI</span>
-              ANALYZING
-            </div>
-
-            <CyberCharacter type="cyber-hero" className="hero-main-character" />
-            <CyberCharacter type="tactical-agent" className="hero-side-character" />
-
-            <div className="energy-orb orb-one" />
-            <div className="energy-orb orb-two" />
-
-            <div className="hero-graffiti graffiti-one">
-              CREATE
-              <br />
-              <span>ANALYZE</span>
-              <br />
-              GROW
-            </div>
-
-            <div className="hero-graffiti graffiti-two">
-              DREAM
-              <br />
-              BIGGER
-            </div>
+          <div className="nm-status-row">
+            <CheckCircle2 size={17} />
+            <span>Creator workflow</span>
+            <b>Ready</b>
           </div>
 
-          <div className="system-pill">
-            <span />
-            SYSTEM OPERATIONAL
-            <button>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ Ãƒâ€šÃ‚Â»</button>
-          </div>
-        </section>
-
-        <section className="metrics">
-          <MetricCard
-            eyebrow="CREATOR SYSTEM"
-            value="NK MIX TAPES"
-            label="YouTube intelligence active"
-            visual="bars"
-          />
-
-          <MetricCard
-            eyebrow="CONTENT PIPELINE"
-            value="12"
-            label="Active projects"
-            trend="ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ +20%"
-            visual="bars"
-          />
-
-          <MetricCard
-            eyebrow="AUDIENCE MOMENTUM"
-            value="24.8K"
-            label="Total followers"
-            trend="ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã‹Å“ +12%"
-            visual="chart"
-          />
-
-          <MetricCard
-            eyebrow="SYSTEM HEALTH"
-            value="100%"
-            label="All systems operational"
-            visual="ring"
-          />
-        </section>
-
-        <section className="character-strip">
-          <div className="strip-copy">
-            <span>YOUR CREATOR SQUAD</span>
-            <strong>Built for creators who move fast.</strong>
+          <div className="nm-status-row">
+            <CheckCircle2 size={17} />
+            <span>AI Studio</span>
+            <b>Ready</b>
           </div>
 
-          <div className="mini-character-stage">
-            <CyberCharacter type="runner" />
-            <CyberCharacter type="survivor" />
-            <CyberCharacter type="neon-agent" />
+          <div className="nm-status-row">
+            <CheckCircle2 size={17} />
+            <span>Scheduling</span>
+            <b>Ready</b>
           </div>
 
-          <div className="strip-badge">N1MOX AI ACTIVE</div>
-        </section>
+          <div className="nm-mini-links">
 
-        <section className="activity-section">
-          <div className="section-heading">
-            <span>RECENT ACTIVITY</span>
-            <button>View all activity ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢</button>
+            <button onClick={() => navigate("/app/byok")}>
+              <KeyRound size={16} />
+              Bring Your Own API
+            </button>
+
+            <button onClick={() => navigate("/app/billing")}>
+              <CreditCard size={16} />
+              Billing & Plans
+            </button>
+
           </div>
 
-          <div className="activity-grid">
-            <article className="activity-card">
-              <div className="activity-icon youtube">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Å“Ãƒâ€šÃ‚Â¶</div>
-              <div>
-                <strong>Video script generated</strong>
-                <small>12 minutes ago</small>
-              </div>
-              <div className="activity-thumb thumb-one">
-                <CyberCharacter type="runner" />
-              </div>
-              <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢</b>
-            </article>
+        </article>
 
-            <article className="activity-card">
-              <div className="activity-icon purple">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬ÂÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¡</div>
-              <div>
-                <strong>Thumbnail created</strong>
-                <small>28 minutes ago</small>
-              </div>
-              <div className="activity-thumb thumb-two">
-                <CyberCharacter type="neon-agent" />
-              </div>
-              <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢</b>
-            </article>
+      </section>
 
-            <article className="activity-card">
-              <div className="activity-icon green">ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã‚ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â</div>
-              <div>
-                <strong>Competitor analysis complete</strong>
-                <small>1 hour ago</small>
-              </div>
-              <div className="activity-thumb thumb-three">
-                <CyberCharacter type="tactical-agent" />
-              </div>
-              <b>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€šÃ‚Â¢</b>
-            </article>
-          </div>
-        </section>
+      <section className="nm-panel nm-insight-panel">
 
-        <div className="dashboard-footer">
-          <span>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</span>
-          DISCIPLINE CREATES FREEDOM
-          <span>ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â</span>
+        <div>
+          <p className="nm-eyebrow">LATEST SIGNAL</p>
+
+          <h2>
+            {insights?.headline || "Your next move starts here."}
+          </h2>
+
+          <p>
+            {insights?.summary ||
+              "Connect your creator accounts and let N1MOX30 turn performance data into practical next steps."}
+          </p>
         </div>
-      </main>
+
+        <button
+          className="nm-secondary-button"
+          onClick={() => navigate("/app/creator-os-live")}
+        >
+          Open Creator OS
+          <ArrowUpRight size={15} />
+        </button>
+
+      </section>
+
     </div>
   );
 }
+
