@@ -1,29 +1,21 @@
 ﻿import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  CreditCard,
+  ShieldCheck,
+} from "lucide-react";
 import api from "../api/client";
+import { PLANS } from "../config/plans";
 
-const DEFAULT_PLANS = [
-  {
-    id: "creator",
-    name: "Creator",
-    price: 1599,
-    currency: "INR",
-    videos: "12 videos / month",
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    price: 4099,
-    currency: "INR",
-    videos: "33 videos / month",
-  },
-  {
-    id: "studio",
-    name: "Studio",
-    price: 10999,
-    currency: "INR",
-    videos: "100 videos / month",
-  },
-];
+const FALLBACK_PLANS = PLANS.map((plan) => ({
+  id: plan.id,
+  name: plan.name,
+  monthly_usd: plan.monthlyUsd,
+  yearly_usd: plan.yearlyUsd,
+  monthly_videos: plan.monthlyVideos,
+}));
 
 function loadRazorpayScript() {
   return new Promise((resolve) => {
@@ -37,8 +29,12 @@ function loadRazorpayScript() {
     );
 
     if (existing) {
-      existing.addEventListener("load", () => resolve(true), { once: true });
-      existing.addEventListener("error", () => resolve(false), { once: true });
+      existing.addEventListener("load", () => resolve(true), {
+        once: true,
+      });
+      existing.addEventListener("error", () => resolve(false), {
+        once: true,
+      });
       return;
     }
 
@@ -53,42 +49,46 @@ function loadRazorpayScript() {
   });
 }
 
-function formatPrice(plan) {
-  const value =
-    plan?.price ??
-    plan?.amount ??
-    plan?.price_inr ??
-    plan?.amount_inr ??
-    0;
-
-  const currency = plan?.currency || "INR";
-
-  try {
-    return new Intl.NumberFormat("en-IN", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: 0,
-    }).format(Number(value));
-  } catch {
-    return `₹${Number(value).toLocaleString("en-IN")}`;
-  }
-}
-
 function normalizePlan(plan) {
+  const source = plan || {};
+
+  const fallback = FALLBACK_PLANS.find(
+    (item) => item.id === source.id
+  );
+
   return {
-    ...plan,
-    id: plan?.id || plan?.plan_id || plan?.slug,
-    name: plan?.name || plan?.id || "Plan",
-    videos:
-      plan?.videos ||
-      plan?.video_limit
-        ? `${plan?.video_limit || plan?.videos || ""} videos / month`
-        : "",
+    ...source,
+    id: source.id || source.plan_id || source.slug,
+    name: source.name || fallback?.name || source.id || "Plan",
+    monthly_usd:
+      source.monthly_usd ??
+      source.price_usd ??
+      fallback?.monthly_usd ??
+      0,
+    yearly_usd:
+      source.yearly_usd ??
+      fallback?.yearly_usd ??
+      0,
+    monthly_videos:
+      source.monthly_videos ??
+      source.video_limit ??
+      fallback?.monthly_videos ??
+      0,
   };
 }
 
+function usd(value) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+}
+
 export default function Billing() {
-  const [plans, setPlans] = useState(DEFAULT_PLANS);
+  const [plans, setPlans] = useState(FALLBACK_PLANS);
+  const [yearly, setYearly] = useState(false);
+  const [coupon, setCoupon] = useState("");
   const [status, setStatus] = useState(null);
   const [loadingPlan, setLoadingPlan] = useState(null);
   const [message, setMessage] = useState("");
@@ -105,9 +105,7 @@ export default function Billing() {
       if (!mounted) return;
 
       if (Array.isArray(plansResponse?.data?.plans)) {
-        setPlans(
-          plansResponse.data.plans.map(normalizePlan)
-        );
+        setPlans(plansResponse.data.plans.map(normalizePlan));
       }
 
       const overview = overviewResponse?.data || {};
@@ -123,6 +121,10 @@ export default function Billing() {
         provider_configured:
           overview.provider_configured ??
           providers.provider_configured ??
+          false,
+        live_enabled:
+          overview.live_enabled ??
+          providers.live_enabled ??
           false,
       });
     });
@@ -140,16 +142,13 @@ export default function Billing() {
     try {
       const response = await api.post("/billing/checkout", {
         plan_id: plan.id,
+        billing_cycle: yearly ? "yearly" : "monthly",
+        coupon_code: coupon.trim() || undefined,
+        currency: "USD",
       });
 
       const data = response?.data || {};
 
-      /*
-       * Safe development/test mode:
-       * The backend deliberately returns a test order while
-       * N1MOX_RAZORPAY_LIVE=false. Never open a real payment
-       * window for a test order.
-       */
       const testMode =
         data.test_mode === true ||
         data.mode === "test" ||
@@ -166,7 +165,7 @@ export default function Billing() {
 
       if (!scriptReady || !window.Razorpay) {
         throw new Error(
-          "Razorpay Checkout could not be loaded."
+          "Payment checkout could not be loaded."
         );
       }
 
@@ -179,28 +178,21 @@ export default function Billing() {
         data.razorpay_key_id ||
         data.key;
 
-      if (!orderId) {
+      if (!orderId || !keyId) {
         throw new Error(
-          "Payment order was not returned by the server."
+          "The payment provider did not return a usable checkout order."
         );
       }
 
-      if (!keyId) {
-        throw new Error(
-          "Razorpay public key was not returned by the server."
-        );
-      }
-
-      const options = {
+      const checkout = new window.Razorpay({
         key: keyId,
         order_id: orderId,
         name: "N1MOX30",
-        description: `${plan.name} Creator Automation Plan`,
-        currency: data.currency || plan.currency || "INR",
+        description: `${plan.name} Creator Operating System`,
+        currency: data.currency || "USD",
         amount:
           data.amount ??
-          data.amount_paise ??
-          Number(plan.price || 0) * 100,
+          data.amount_paise,
 
         handler: async (paymentResponse) => {
           try {
@@ -260,11 +252,9 @@ export default function Billing() {
         },
 
         theme: {
-          color: "#111111",
+          color: "#171714",
         },
-      };
-
-      const checkout = new window.Razorpay(options);
+      });
 
       checkout.on("payment.failed", (paymentError) => {
         setError(
@@ -286,98 +276,217 @@ export default function Billing() {
   }
 
   return (
-    <section className="page-section">
-      <div className="page-heading">
-        <div>
-          <p className="eyebrow">N1MOX30 COMMERCE</p>
+    <main className="nm-billing-page">
+      <div className="nm-billing-shell">
 
-          <h2>Plans & Billing</h2>
+        <header className="nm-billing-header">
+          <div>
+            <span className="nm-commercial-eyebrow">
+              N1MOX30 · COMMERCE
+            </span>
 
-          <p>
-            Manage your N1MOX30 subscription and creator
-            automation capacity.
-          </p>
-        </div>
-      </div>
+            <h1>Plans & billing.</h1>
 
-      {message && (
-        <div
-          className="glass-card"
-          style={{ marginBottom: 18 }}
-        >
-          <p>{message}</p>
-        </div>
-      )}
+            <p>
+              Choose your creator capacity, manage checkout and keep
+              your subscription information in one place.
+            </p>
+          </div>
 
-      {error && (
-        <div
-          className="glass-card"
-          style={{ marginBottom: 18 }}
-        >
-          <p>{error}</p>
-        </div>
-      )}
+          <Link
+            to="/pricing"
+            className="nm-billing-secondary"
+          >
+            View pricing <ArrowUpRight size={15} />
+          </Link>
+        </header>
 
-      <div className="settings-grid">
-        {plans.map((plan) => {
-          const isLoading = loadingPlan === plan.id;
+        <section className="nm-billing-toolbar">
 
-          return (
-            <div
-              className="glass-card"
-              key={plan.id || plan.name}
+          <div className="nm-billing-toggle">
+            <button
+              className={!yearly ? "active" : ""}
+              onClick={() => setYearly(false)}
             >
-              <p className="eyebrow">{plan.name}</p>
+              Monthly
+            </button>
 
-              <h2>{formatPrice(plan)}</h2>
+            <button
+              className={yearly ? "active" : ""}
+              onClick={() => setYearly(true)}
+            >
+              Yearly
+            </button>
+          </div>
 
-              <p className="muted">
-                {plan.videos ||
-                  `${plan.video_limit || ""} videos / month`}
+          <div className="nm-billing-base">
+            <span>Reference currency</span>
+            <strong>USD</strong>
+          </div>
+
+        </section>
+
+        {message && (
+          <div className="nm-billing-message success">
+            <CheckCircle2 size={18} />
+            <span>{message}</span>
+          </div>
+        )}
+
+        {error && (
+          <div className="nm-billing-message error">
+            <span>{error}</span>
+          </div>
+        )}
+
+        <section className="nm-billing-grid">
+
+          {plans.map((rawPlan) => {
+            const plan = normalizePlan(rawPlan);
+
+            const price = yearly
+              ? plan.yearly_usd
+              : plan.monthly_usd;
+
+            const loading = loadingPlan === plan.id;
+
+            return (
+              <article
+                className={`nm-billing-card ${
+                  plan.id === "pro" ? "featured" : ""
+                }`}
+                key={plan.id}
+              >
+                {plan.id === "pro" && (
+                  <span className="nm-billing-popular">
+                    MOST POPULAR
+                  </span>
+                )}
+
+                <span className="nm-commercial-eyebrow">
+                  {plan.id}
+                </span>
+
+                <h2>{plan.name}</h2>
+
+                <div className="nm-billing-price">
+                  {usd(price)}
+                  <small>
+                    {yearly ? "/year" : "/month"}
+                  </small>
+                </div>
+
+                <p className="nm-billing-capacity">
+                  {plan.monthly_videos >= 100
+                    ? "100+ videos / month"
+                    : `${plan.monthly_videos} videos / month`}
+                </p>
+
+                <button
+                  className="nm-billing-primary"
+                  onClick={() => choosePlan(plan)}
+                  disabled={Boolean(loadingPlan)}
+                >
+                  {loading
+                    ? "Preparing..."
+                    : `Choose ${plan.name}`}
+                  <ArrowUpRight size={15} />
+                </button>
+              </article>
+            );
+          })}
+
+        </section>
+
+        <section className="nm-billing-lower">
+
+          <article className="nm-billing-panel">
+            <div className="nm-panel-icon">
+              <CreditCard size={19} />
+            </div>
+
+            <div>
+              <span className="nm-commercial-eyebrow">
+                COUPON
+              </span>
+
+              <h3>Have a launch code?</h3>
+
+              <p>
+                Enter your coupon before checkout. The server must
+                validate the code before applying a discount.
               </p>
 
-              <button
-                className="primary-button"
-                onClick={() => choosePlan(plan)}
-                disabled={Boolean(loadingPlan)}
-              >
-                {isLoading
-                  ? "Opening checkout..."
-                  : "Choose plan"}
-              </button>
+              <input
+                className="nm-billing-input"
+                value={coupon}
+                onChange={(event) =>
+                  setCoupon(event.target.value)
+                }
+                placeholder="Coupon code"
+                maxLength={64}
+                autoComplete="off"
+              />
             </div>
-          );
-        })}
+          </article>
+
+          <article className="nm-billing-panel">
+            <div className="nm-panel-icon">
+              <ShieldCheck size={19} />
+            </div>
+
+            <div>
+              <span className="nm-commercial-eyebrow">
+                PAYMENT STATUS
+              </span>
+
+              <h3>
+                {status?.checkout_ready
+                  ? "Checkout ready"
+                  : "Test / setup mode"}
+              </h3>
+
+              <p>
+                Provider configured:{" "}
+                <strong>
+                  {status?.provider_configured
+                    ? "Yes"
+                    : "No"}
+                </strong>
+              </p>
+
+              <p>
+                Live charging:{" "}
+                <strong>
+                  {status?.live_enabled
+                    ? "Enabled"
+                    : "Disabled"}
+                </strong>
+              </p>
+
+              {!status?.live_enabled && (
+                <small>
+                  No real payment is charged while live
+                  payment mode is disabled.
+                </small>
+              )}
+            </div>
+          </article>
+
+        </section>
+
+        <section className="nm-billing-footnote">
+          <ShieldCheck size={17} />
+
+          <span>
+            USD is the reference catalog price. Final payment
+            currency, taxes, payment methods and applicable
+            consumer rights depend on the configured payment
+            provider and the customer's jurisdiction.
+          </span>
+        </section>
+
       </div>
-
-      <div
-        className="glass-card"
-        style={{ marginTop: 18 }}
-      >
-        <h3>Payment status</h3>
-
-        <p className="muted">
-          {status?.checkout_ready
-            ? "Checkout is ready."
-            : "Payment provider is currently in test/setup mode."}
-        </p>
-
-        <small className="muted">
-          Provider configured:{" "}
-          {status?.provider_configured
-            ? "Yes"
-            : "No"}
-        </small>
-
-        <br />
-
-        <small className="muted">
-          Live charging:{" "}
-          {status?.live_enabled
-            ? "Enabled"
-            : "Disabled"}
-        </small>
-      </div>
-    </section>
+    </main>
   );
 }
