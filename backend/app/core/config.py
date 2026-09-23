@@ -1,6 +1,6 @@
 ﻿from functools import lru_cache
 
-from pydantic import field_validator
+from pydantic import AliasChoices, Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # Application
     app_name: str = "N1MOX30"
     app_version: str = "1.0.0"
-    environment: str = "development"
+    environment: str = Field("development", validation_alias=AliasChoices("ENVIRONMENT", "APP_ENV"))
 
     # Database
     database_url: str = "sqlite:///./n1mox30.db"
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 1440
 
     # Encryption
-    encryption_key: str = ""
+    encryption_key: str = Field("", validation_alias=AliasChoices("ENCRYPTION_KEY", "N1MOX_BYOK_ENCRYPTION_KEY"))
 
     # CORS
     cors_origins: str = ""
