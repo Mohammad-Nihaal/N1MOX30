@@ -5,7 +5,7 @@
     monthlyUsd: 19,
     yearlyUsd: 190,
     monthlyVideos: 27,
-    description: "For creators building a consistent publishing system.",
+    description: "A focused operating system for creators building consistently.",
     couponDiscount: 50,
     features: [
       "27 videos / month",
@@ -21,7 +21,7 @@
     monthlyUsd: 49,
     yearlyUsd: 490,
     monthlyVideos: 72,
-    description: "For serious creators running an automated content operation.",
+    description: "For creators running a serious automated content operation.",
     couponDiscount: 25,
     popular: true,
     features: [
@@ -38,7 +38,7 @@
     monthlyUsd: 129,
     yearlyUsd: 1290,
     monthlyVideos: 100,
-    description: "For high-volume creator operations.",
+    description: "For high-volume creator operations and teams.",
     couponDiscount: 42,
     features: [
       "100+ videos / month",
@@ -57,14 +57,6 @@ export const YEARLY_SAVINGS = {
   pro: 98,
   studio: 258,
 };
-
-export function formatUsd(amount) {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 export function formatPlanPrice(
   plan,
