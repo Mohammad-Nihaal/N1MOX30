@@ -33,6 +33,7 @@ import BYOK from "./pages/BYOK";
 import Billing from "./pages/Billing";
 import PublishingCenter from "./pages/PublishingCenter";
 import DailyWorkspace from "./pages/DailyWorkspace";
+import Usage from "./pages/Usage";
 
 import {
   AboutPage,
@@ -234,6 +235,7 @@ function AppRoutes() {
         <Route path="youtube" element={<YouTube />} />
         <Route path="byok" element={<BYOK />} />
         <Route path="billing" element={<Billing />} />
+        <Route path="usage" element={<Usage />} />
         <Route path="creator-os-live" element={<CreatorOSLive />} />
 
         <Route path="*" element={<Navigate to="/app" replace />} />

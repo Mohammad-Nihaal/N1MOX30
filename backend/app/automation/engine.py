@@ -395,6 +395,7 @@ class WorkflowEngine:
 
         handler_context = dict(input_payload)
         handler_context["_db"] = self.db
+        handler_context["user_id"] = workflow.user_id
 
         output = handler(handler_context)
 

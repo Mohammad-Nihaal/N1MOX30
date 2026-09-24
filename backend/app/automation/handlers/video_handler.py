@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import json
 from pathlib import Path
@@ -30,6 +30,8 @@ class VideoStageHandler:
             visuals=visuals_output,
             voice=voice_output,
             script=script_output,
+            user_id=str(context.get("user_id") or "") or None,
+            db=context.get("_db"),
         )
 
     def _unwrap(self, value: Any, stage_name: str) -> dict[str, Any]:

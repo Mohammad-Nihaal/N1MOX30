@@ -1,3 +1,4 @@
+from app.models.usage import UsageLedger
 from app.models.batch11 import AIUsageLedger
 from app.models.batch11 import PaymentCustomer
 from app.models.batch11 import PaymentTransaction
@@ -64,4 +65,5 @@ __all__ = [
     "User",
     "VideoPerformance",
     "VideoTimeline",
+    "UsageLedger",
 ]

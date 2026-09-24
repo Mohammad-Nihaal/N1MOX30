@@ -1,4 +1,4 @@
-﻿from dataclasses import dataclass
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -8,6 +8,15 @@ class Plan:
     monthly_usd: int
     yearly_usd: int
     monthly_videos: int
+    monthly_clips: int
+    monthly_messages: int | None
+    monthly_email: int | None
+    monthly_outlook: int | None
+    monthly_instagram: int
+    monthly_x: int
+    monthly_tiktok: int
+    youtube_min_minutes: int
+    youtube_target_minutes: int
     description: str
 
 
@@ -18,6 +27,15 @@ PLANS = {
         19,
         190,
         27,
+        12,
+        999,
+        999,
+        999,
+        60,
+        60,
+        60,
+        15,
+        25,
         "For creators building a consistent publishing system.",
     ),
     "pro": Plan(
@@ -26,6 +44,15 @@ PLANS = {
         49,
         490,
         72,
+        39,
+        1999,
+        1999,
+        1999,
+        180,
+        180,
+        180,
+        15,
+        25,
         "For serious creators running an automated content operation.",
     ),
     "studio": Plan(
@@ -33,7 +60,16 @@ PLANS = {
         "Studio",
         129,
         1290,
+        111,
         100,
+        4499,
+        4499,
+        4499,
+        360,
+        360,
+        360,
+        15,
+        25,
         "For high-volume creators and creator operations.",
     ),
 }
@@ -63,6 +99,15 @@ def public_plans():
             "monthly_usd": plan.monthly_usd,
             "yearly_usd": plan.yearly_usd,
             "monthly_videos": plan.monthly_videos,
+            "monthly_clips": plan.monthly_clips,
+            "monthly_messages": plan.monthly_messages,
+            "monthly_email": plan.monthly_email,
+            "monthly_outlook": plan.monthly_outlook,
+            "monthly_instagram": plan.monthly_instagram,
+            "monthly_x": plan.monthly_x,
+            "monthly_tiktok": plan.monthly_tiktok,
+            "youtube_min_minutes": plan.youtube_min_minutes,
+            "youtube_target_minutes": plan.youtube_target_minutes,
             "description": plan.description,
             "coupon_discount_percent": COUPONS[plan.id]["discount_percent"],
         }

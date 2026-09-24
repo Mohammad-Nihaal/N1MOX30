@@ -55,6 +55,7 @@ const groups = [
       ["Connected Accounts", "/app/accounts", UserRound],
       ["BYOK / API Keys", "/app/byok", KeyRound],
       ["Billing & Plans", "/app/billing", CreditCard],
+      ["Usage", "/app/usage", Gauge],
       ["Settings", "/app/settings", Settings],
     ],
   },

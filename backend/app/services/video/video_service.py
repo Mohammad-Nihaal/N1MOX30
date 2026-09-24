@@ -1,16 +1,17 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 import json
 import subprocess
 from pathlib import Path
 from typing import Any
 from app.services.video_rendering.ffmpeg_renderer import FFmpegVideoRenderer
+from app.services.usage_service import assert_available, reserve_usage
 class VideoService:
     """
     N1MOX30 Stage 10 video production service.
     Converts completed Script + Voice + Visuals outputs into a real
     renderable video using the local FFmpeg renderer.
     Supports:
-        YouTube long-form: 12-20 minutes
+        YouTube long-form: 15 minutes minimum, 25+ minute target
         Shorts/Reels/TikTok: <= 60 seconds
     """
     SUPPORTED_PLATFORMS = {
@@ -22,8 +23,8 @@ class VideoService:
         "x",
         "twitter",
     }
-    YOUTUBE_MIN_SECONDS = 720
-    YOUTUBE_MAX_SECONDS = 1200
+    YOUTUBE_MIN_SECONDS = 900
+    YOUTUBE_TARGET_SECONDS = 1500
     SHORT_MAX_SECONDS = 60
     def __init__(self) -> None:
         self.renderer = FFmpegVideoRenderer()
@@ -40,6 +41,8 @@ class VideoService:
         visuals: dict[str, Any],
         voice: dict[str, Any],
         script: dict[str, Any],
+        user_id: str | None = None,
+        db: Any | None = None,
     ) -> dict[str, Any]:
         topic = str(topic or "").strip()
         platform = str(platform or "youtube").strip().lower()
@@ -166,6 +169,10 @@ class VideoService:
             self.output_dir
             / f"{safe_topic}_{platform}.mp4"
         )
+
+        if platform == "youtube" and user_id and db is not None:
+            assert_available(db, user_id, "youtube", 1)
+
         render_result = self.renderer.render(
             timeline,
             output_path,
@@ -192,6 +199,10 @@ class VideoService:
             platform=platform,
             duration_seconds=rendered_duration,
         )
+
+        if platform == "youtube" and user_id and db is not None:
+            reserve_usage(db, user_id, "youtube", 1)
+
         return {
             "stage": "video",
             "status": "completed",
@@ -494,12 +505,6 @@ class VideoService:
                     f"YouTube long-form video is {duration:.2f}s; "
                     f"minimum is {self.YOUTUBE_MIN_SECONDS}s "
                     f"(12 minutes)."
-                )
-            if duration > self.YOUTUBE_MAX_SECONDS:
-                raise ValueError(
-                    f"YouTube long-form video is {duration:.2f}s; "
-                    f"maximum is {self.YOUTUBE_MAX_SECONDS}s "
-                    f"(20 minutes)."
                 )
         else:
             if duration <= 0:

@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 import hashlib
 import hmac
@@ -22,18 +22,45 @@ PLANS: dict[str, dict[str, Any]] = {
         "name": "Creator",
         "amount_inr": int(os.getenv("RAZORPAY_CREATOR_AMOUNT_INR", "1599")),
         "videos": 27,
+        "clips": 12,
+        "messages": 999,
+        "email": 999,
+        "outlook": 999,
+        "instagram": 60,
+        "x": 60,
+        "tiktok": 60,
+        "youtube_min_minutes": 15,
+        "youtube_target_minutes": 25,
     },
     "pro": {
         "id": "pro",
         "name": "Pro",
         "amount_inr": int(os.getenv("RAZORPAY_PRO_AMOUNT_INR", "4099")),
         "videos": 72,
+        "clips": 39,
+        "messages": 1999,
+        "email": 1999,
+        "outlook": 1999,
+        "instagram": 180,
+        "x": 180,
+        "tiktok": 180,
+        "youtube_min_minutes": 15,
+        "youtube_target_minutes": 25,
     },
     "studio": {
         "id": "studio",
         "name": "Studio",
         "amount_inr": int(os.getenv("RAZORPAY_STUDIO_AMOUNT_INR", "10999")),
-        "videos": 100,
+        "videos": 111,
+        "clips": 100,
+        "messages": 4499,
+        "email": 4499,
+        "outlook": 4499,
+        "instagram": 360,
+        "x": 360,
+        "tiktok": 360,
+        "youtube_min_minutes": 15,
+        "youtube_target_minutes": 25,
     },
 }
 
@@ -238,10 +265,20 @@ def verify_razorpay_signature(
 
 @router.get("/plans")
 def plans() -> dict[str, Any]:
+    normalized = []
+    for plan in PLANS.values():
+        normalized.append({
+            **plan,
+            "monthly_videos": plan["videos"],
+            "monthly_clips": plan["clips"],
+            "monthly_messages": plan["messages"],
+            "monthly_email": plan["email"],
+            "monthly_outlook": plan["outlook"],
+        })
     return {
         "currency": "INR",
         "provider": PAYMENT_PROVIDER,
-        "plans": list(PLANS.values()),
+        "plans": normalized,
     }
 
 

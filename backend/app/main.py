@@ -131,6 +131,7 @@ from app.api.thumbnails import (
 from app.api.users import (
     router as users_router,
 )
+from app.api.usage import router as usage_router
 
 from app.api.video_render import (
     router as video_render_router,
@@ -272,6 +273,7 @@ auth_router,
 app.include_router(
     users_router,
 )
+app.include_router(usage_router)
 app.include_router(platform_router)
 app.include_router(platform_v2_router)
 app.include_router(quality_control_router)

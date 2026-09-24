@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -15,6 +15,15 @@ const FALLBACK_PLANS = PLANS.map((plan) => ({
   monthly_usd: plan.monthlyUsd,
   yearly_usd: plan.yearlyUsd,
   monthly_videos: plan.monthlyVideos,
+  monthly_clips: plan.monthlyClips,
+  monthly_messages: plan.monthlyMessages,
+  monthly_email: plan.monthlyEmail,
+  monthly_outlook: plan.monthlyOutlook,
+  youtube_min_minutes: plan.youtubeMinMinutes,
+  youtube_target_minutes: plan.youtubeTargetMinutes,
+  monthly_instagram: plan.monthlyInstagram,
+  monthly_x: plan.monthlyX,
+  monthly_tiktok: plan.monthlyTiktok,
 }));
 
 function loadRazorpayScript() {
@@ -72,8 +81,18 @@ function normalizePlan(plan) {
     monthly_videos:
       source.monthly_videos ??
       source.video_limit ??
+      source.videos ??
       fallback?.monthly_videos ??
       0,
+    monthly_clips: source.monthly_clips ?? source.clips ?? fallback?.monthly_clips ?? 0,
+    monthly_messages: source.monthly_messages ?? source.messages ?? fallback?.monthly_messages ?? 0,
+    monthly_email: source.monthly_email ?? source.email ?? fallback?.monthly_email ?? 0,
+    monthly_outlook: source.monthly_outlook ?? source.outlook ?? fallback?.monthly_outlook ?? 0,
+    youtube_min_minutes: source.youtube_min_minutes ?? 15,
+    youtube_target_minutes: source.youtube_target_minutes ?? 25,
+    monthly_instagram: source.monthly_instagram ?? source.instagram ?? fallback?.monthly_instagram ?? 0,
+    monthly_x: source.monthly_x ?? source.x ?? fallback?.monthly_x ?? 0,
+    monthly_tiktok: source.monthly_tiktok ?? source.tiktok ?? fallback?.monthly_tiktok ?? 0,
   };
 }
 
@@ -376,11 +395,14 @@ export default function Billing() {
                   </small>
                 </div>
 
-                <p className="nm-billing-capacity">
-                  {plan.monthly_videos >= 100
-                    ? "100+ videos / month"
-                    : `${plan.monthly_videos} videos / month`}
-                </p>
+                <div className="nm-billing-capacity">
+                  <p>{plan.monthly_videos} YouTube long videos / month</p>
+                  <p>{plan.monthly_clips} clips / month</p>
+                  <p>{plan.monthly_messages} messages / month</p>
+                  <p>{plan.monthly_email} Gmail / Email actions / month</p>
+                  <p>{plan.monthly_outlook} Outlook actions / month</p>
+                  <p>{plan.youtube_min_minutes}–{plan.youtube_target_minutes}+ minute YouTube videos</p>
+                </div>
 
                 <button
                   className="nm-billing-primary"

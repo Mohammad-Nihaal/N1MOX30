@@ -46,6 +46,7 @@ function DashboardLayout() {
       "/app/notifications": "Notifications",
       "/app/accounts": "Connected Accounts",
       "/app/settings": "Settings",
+      "/app/usage": "Usage",
     };
 
     const pageTitle =
