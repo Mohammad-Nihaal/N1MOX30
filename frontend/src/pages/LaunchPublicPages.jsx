@@ -1,0 +1,8 @@
+import { Link } from "react-router-dom";
+
+function Page({ kicker, title, children }) {
+  return <main className="nm-public-shell"><div className="nm-public-top"><Link to="/" className="nm-public-back">N1MOX30</Link><Link to="/pricing" className="nm-public-app">Pricing →</Link></div><section className="nm-public-content"><div className="nm-public-eyebrow">{kicker}</div><h1>{title}</h1>{children}</section></main>;
+}
+
+export function FeaturesPage(){return <Page kicker="PRODUCT" title="One creator system, end to end."><div className="nm-public-grid">{["Research → strategy → hooks → scripts","AI Studio, voice, visuals and video","Long video → ready-to-publish clips","YouTube, Instagram, TikTok and X workflows","Messages, Gmail and Outlook drafting","Analytics, usage and plan controls"].map(x=><article className="nm-public-card" key={x}><h2>{x}</h2><p>Built into one Creator Operating System with approval-first automation and provider-authorized actions.</p></article>)}</div></Page>}
+export function SecurityPage(){return <Page kicker="TRUST · SECURITY" title="Security is part of the product."><div className="nm-public-card"><h2>Production controls</h2><ul><li>Production secret and encryption key validation</li><li>Restricted CORS and secure deployment configuration</li><li>Backend-only provider secrets</li><li>OAuth and webhook verification paths</li><li>Authenticated account isolation</li><li>Backend-enforced usage limits</li><li>Health and launch-readiness checks</li></ul><p>Deployment-specific controls must be enabled with real production credentials before launch.</p></div></Page>}

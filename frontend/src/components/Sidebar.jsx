@@ -14,6 +14,10 @@ import {
   TrendingUp,
   Video,
   Workflow,
+  MessageSquare,
+  Mail,
+  Scissors,
+  Share2,
   Send,
   UserRound,
 } from "lucide-react";
@@ -43,10 +47,21 @@ const groups = [
     label: "PUBLISH",
     items: [
       ["YouTube", "/app/youtube", Video],
+      ["Clips", "/app/clips", Scissors],
+      ["Social Hub", "/app/social", Share2],
       ["Publishing Center", "/app/publishing", Send],
       ["Scheduler", "/app/schedules", CalendarDays],
       ["AI Studio", "/app/ai-studio", Gauge],
       ["History", "/app/ai-history", FileClock],
+    ],
+  },
+  {
+    label: "COMMUNICATION",
+    items: [
+      ["Messages", "/app/messages", MessageSquare],
+      ["Email", "/app/email", Mail],
+      ["Outlook", "/app/outlook", Mail],
+      ["Usage", "/app/usage", Gauge],
     ],
   },
   {
@@ -55,7 +70,6 @@ const groups = [
       ["Connected Accounts", "/app/accounts", UserRound],
       ["BYOK / API Keys", "/app/byok", KeyRound],
       ["Billing & Plans", "/app/billing", CreditCard],
-      ["Usage", "/app/usage", Gauge],
       ["Settings", "/app/settings", Settings],
     ],
   },

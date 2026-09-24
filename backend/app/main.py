@@ -132,6 +132,10 @@ from app.api.users import (
     router as users_router,
 )
 from app.api.usage import router as usage_router
+from app.api.communications import router as communications_router
+from app.api.clips import router as clips_router
+from app.api.social_hub import router as social_hub_router
+from app.api.launch_readiness import router as launch_readiness_router
 
 from app.api.video_render import (
     router as video_render_router,
@@ -274,6 +278,10 @@ app.include_router(
     users_router,
 )
 app.include_router(usage_router)
+app.include_router(communications_router)
+app.include_router(clips_router)
+app.include_router(social_hub_router)
+app.include_router(launch_readiness_router)
 app.include_router(platform_router)
 app.include_router(platform_v2_router)
 app.include_router(quality_control_router)

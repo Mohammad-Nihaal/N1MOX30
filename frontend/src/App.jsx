@@ -33,6 +33,12 @@ import BYOK from "./pages/BYOK";
 import Billing from "./pages/Billing";
 import PublishingCenter from "./pages/PublishingCenter";
 import DailyWorkspace from "./pages/DailyWorkspace";
+import Messages from "./pages/Messages";
+import EmailCenter from "./pages/EmailCenter";
+import Clips from "./pages/Clips";
+import SocialHub from "./pages/SocialHub";
+import { FeaturesPage, SecurityPage } from "./pages/LaunchPublicPages";
+import CookieConsent from "./components/CookieConsent";
 import Usage from "./pages/Usage";
 
 import {
@@ -49,6 +55,7 @@ import "./App.css";
 import "./styles/auth.css";
 import CreatorOSLive from "./pages/CreatorOSLive";
 import "./styles/nimox30-creator-os.css";
+import "./styles/launch-completion.css";
 /* =========================================================
    PROTECTED ROUTE
    ========================================================= */
@@ -194,6 +201,8 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/features" element={<FeaturesPage />} />
+      <Route path="/security" element={<SecurityPage />} />
 
       <Route path="/about" element={<AboutPage />} />
       <Route path="/contact" element={<ContactPage />} />
@@ -237,6 +246,11 @@ function AppRoutes() {
         <Route path="billing" element={<Billing />} />
         <Route path="usage" element={<Usage />} />
         <Route path="creator-os-live" element={<CreatorOSLive />} />
+        <Route path="messages" element={<Messages />} />
+        <Route path="email" element={<EmailCenter />} />
+        <Route path="outlook" element={<EmailCenter />} />
+        <Route path="clips" element={<Clips />} />
+        <Route path="social" element={<SocialHub />} />
 
         <Route path="*" element={<Navigate to="/app" replace />} />
       </Route>
@@ -251,6 +265,7 @@ function App() {
   return (
     <BrowserRouter>
       <AppRoutes />
+      <CookieConsent />
     </BrowserRouter>
   );
 }

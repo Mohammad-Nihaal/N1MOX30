@@ -46,6 +46,12 @@ function DashboardLayout() {
       "/app/notifications": "Notifications",
       "/app/accounts": "Connected Accounts",
       "/app/settings": "Settings",
+      "/app/messages": "Messages / Inbox",
+      "/app/email": "Email Center",
+      "/app/outlook": "Outlook",
+      "/app/clips": "Clips",
+      "/app/social": "Social Hub",
+      "/app/usage": "Usage",
       "/app/usage": "Usage",
     };
 

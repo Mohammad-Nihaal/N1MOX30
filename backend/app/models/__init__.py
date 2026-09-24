@@ -66,4 +66,8 @@ __all__ = [
     "VideoPerformance",
     "VideoTimeline",
     "UsageLedger",
+    "CommunicationMessage",
+    "ClipJob",
 ]
+
+from app.models.launch_workspace import CommunicationMessage, ClipJob
