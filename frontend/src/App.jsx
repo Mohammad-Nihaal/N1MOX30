@@ -1,3 +1,5 @@
+import PublicSite from './pages/PublicSite';
+import N1MOXVoiceControl from './components/N1MOXVoiceControl';
 import N1MOXVoiceAssistant from "./components/N1MOXVoiceAssistant";
 import {
   BrowserRouter,
@@ -263,7 +265,7 @@ function AppRoutes() {
 }
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter>`r`n      <N1MOXVoiceControl />
       <AppRoutes />
       <CookieConsent />
     </BrowserRouter>

@@ -1,9 +1,5 @@
 import { generateResearchPipelineContent } from "../api/research";
-import {
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   createResearch,

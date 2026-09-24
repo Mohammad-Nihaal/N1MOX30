@@ -1,4 +1,5 @@
-﻿import { AlertCircle, Camera, CheckCircle2, Plus, RefreshCw, Unplug, Video } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AlertCircle, Camera, CheckCircle2, Plus, RefreshCw, Unplug, Video } from "lucide-react";
 import api from "../api/client";
 
 const PLATFORM_LIMITS = {

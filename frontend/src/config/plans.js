@@ -1,3 +1,13 @@
+export const N1MOX30_FREE_PLAN = {
+  id: "free",
+  name: "Free",
+  price: 0,
+  priceLabel: "$0",
+  youtubeVideosPerMonth: 3,
+  messagesPerMonth: 6,
+  clipsPerMonth: 0,
+  socialPublishingPerMonth: 3,
+};
 export const PLANS = [
   {
     id: "creator",
