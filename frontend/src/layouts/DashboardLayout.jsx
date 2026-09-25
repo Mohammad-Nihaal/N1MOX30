@@ -1,5 +1,4 @@
-import N1MOXVoiceControl from '../components/N1MOXVoiceControl';
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 import Header from "../components/Header";
@@ -87,7 +86,8 @@ function DashboardLayout() {
         >
           <Outlet />
         </div>
-      </main>`r`n      <N1MOXVoiceControl />
+      </main>
+
     </div>
   );
 }

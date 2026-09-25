@@ -1,4 +1,4 @@
-import {
+﻿import {
   Bell,
   Command,
   Moon,
@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import N1MOXVoiceControl from "./N1MOXVoiceControl";
 
 import api from "../api/client";
 
@@ -157,6 +158,9 @@ function Header({ sidebarOpen, setSidebarOpen }) {
           RIGHT ACTIONS
           ===================================================== */}
 
+      <div className="n1-header-voice">
+        <N1MOXVoiceControl />
+      </div>
       <div className="n1-header-actions">
         {/* =================================================
             THEME

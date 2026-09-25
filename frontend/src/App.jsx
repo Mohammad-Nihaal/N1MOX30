@@ -39,20 +39,9 @@ import Messages from "./pages/Messages";
 import EmailCenter from "./pages/EmailCenter";
 import Clips from "./pages/Clips";
 import SocialHub from "./pages/SocialHub";
-import { FeaturesPage, SecurityPage } from "./pages/LaunchPublicPages";
 import CookieConsent from "./components/CookieConsent";
 import Usage from "./pages/Usage";
 
-import {
-  AboutPage,
-  ContactPage,
-  CookiePage,
-  DataRequestPage,
-  HelpPage,
-  NotFoundPage,
-  PrivacyPage,
-  TermsPage,
-} from "./pages/PublicPages";
 import "./App.css";
 import "./styles/auth.css";
 import CreatorOSLive from "./pages/CreatorOSLive";
@@ -199,20 +188,20 @@ function AppRoutes() {
     <Routes>
 
       {/* Public */}
-      <Route path="/" element={<HomeRoute />} />
+      <Route path="/" element={<PublicSite />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/pricing" element={<Pricing />} />
-      <Route path="/features" element={<FeaturesPage />} />
-      <Route path="/security" element={<SecurityPage />} />
+      <Route path="/pricing" element={<PublicSite />} />
+      <Route path="/features" element={<PublicSite />} />
+      <Route path="/security" element={<PublicSite />} />
 
-      <Route path="/about" element={<AboutPage />} />
-      <Route path="/contact" element={<ContactPage />} />
-      <Route path="/privacy" element={<PrivacyPage />} />
-      <Route path="/terms" element={<TermsPage />} />
-      <Route path="/cookies" element={<CookiePage />} />
-      <Route path="/data-request" element={<DataRequestPage />} />
-      <Route path="/help" element={<HelpPage />} />
+      <Route path="/about" element={<PublicSite />} />
+      <Route path="/contact" element={<PublicSite />} />
+      <Route path="/privacy" element={<PublicSite />} />
+      <Route path="/terms" element={<PublicSite />} />
+      <Route path="/cookies" element={<PublicSite />} />
+      <Route path="/data-request" element={<PublicSite />} />
+      <Route path="/help" element={<PublicSite />} />
 
       {/* Protected N1MOX30 application */}
       <Route
@@ -265,7 +254,7 @@ function AppRoutes() {
 }
 function App() {
   return (
-    <BrowserRouter>`r`n      <N1MOXVoiceControl />
+    <BrowserRouter>
       <AppRoutes />
       <CookieConsent />
     </BrowserRouter>
@@ -276,3 +265,4 @@ function App() {
 
 
 export default App;
+

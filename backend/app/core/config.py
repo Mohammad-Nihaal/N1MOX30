@@ -1,4 +1,4 @@
-from pathlib import Path
+﻿from pathlib import Path
 from functools import lru_cache
 
 from pydantic import AliasChoices, Field, field_validator
@@ -121,6 +121,13 @@ class Settings(BaseSettings):
 
     # Billing
     default_plan: str = "free"
+
+    # Owner lifetime Studio entitlement.
+    # Configure N1MOX_OWNER_EMAIL in the production environment.
+    n1mox_owner_email: str = Field(
+        "",
+        validation_alias=AliasChoices("N1MOX_OWNER_EMAIL", "OWNER_EMAIL"),
+    )
     billing_currency: str = "INR"
 
     @field_validator("access_token_expire_minutes")
@@ -203,3 +210,4 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
+

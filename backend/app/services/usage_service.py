@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from app.core.config import get_settings
 from calendar import monthrange
 from datetime import datetime, timedelta
 from typing import Any
@@ -25,7 +25,23 @@ def _calendar_period(now: datetime | None = None) -> tuple[datetime, datetime]:
     return start, end
 
 
+def _is_owner(db: Session, user_id: str) -> bool:
+    settings = get_settings()
+    owner_email = getattr(settings, "n1mox_owner_email", "") or ""
+
+    if not owner_email:
+        return False
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user or not getattr(user, "email", None):
+        return False
+
+    return user.email.strip().lower() == owner_email.strip().lower()
+
 def _plan_code(db: Session, user_id: str) -> str:
+    if _is_owner(db, user_id):
+        return "studio"
     subscription = (
         db.query(Subscription)
         .filter(Subscription.user_id == user_id)
@@ -209,3 +225,5 @@ def reserve_usage(
         "remaining": None if limit is None else max(0, limit - row.used),
         "period_end": period_end.isoformat(),
     }
+
+

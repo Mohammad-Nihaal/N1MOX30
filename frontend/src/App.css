@@ -1,4 +1,4 @@
-@import "./styles/nimox30-creative.css";
+﻿@import "./styles/nimox30-creative.css";
 
 .nx30-home {
   min-height: 100vh;
@@ -3858,7 +3858,7 @@ img {
 
 
 /* =========================================================
-   N1MOX30 V2 â€” PREMIUM PRODUCT UI
+   N1MOX30 V2 Ã¢â‚¬” PREMIUM PRODUCT UI
    ========================================================= */
 :root {
   --n1-bg: #f6f7fb;
@@ -4153,7 +4153,7 @@ input, textarea, select { border-radius:11px; }
 @media(max-width:900px){.n1-two-column{grid-template-columns:1fr}}
 
 /* =========================================================
-   N1MOX30 â€” BATCH 2A PREMIUM APP SHELL
+   N1MOX30 Ã¢â‚¬” BATCH 2A PREMIUM APP SHELL
    ========================================================= */
 
 .app {
@@ -4491,7 +4491,7 @@ input, textarea, select { border-radius:11px; }
 }
 
 /* =========================================================
-   N1MOX30 â€” BATCH 3 APP SHELL
+   N1MOX30 Ã¢â‚¬” BATCH 3 APP SHELL
    ========================================================= */
 
 .app {
@@ -4744,7 +4744,7 @@ input, textarea, select { border-radius:11px; }
 }
 
 /* =========================================================
-   N1MOX30 â€” BATCH 3B COMMAND CENTER
+   N1MOX30 Ã¢â‚¬” BATCH 3B COMMAND CENTER
    ========================================================= */
 
 .nm-dashboard {
@@ -6771,7 +6771,7 @@ th{color:var(--nm-text);font-size:.78rem;font-weight:700;text-transform:uppercas
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important}}
 /* N1MOX30 PREMIUM UI SYSTEM - END */
 
-/* N1MOX30 ACCESSIBILITY + PREMIUM UI CORRECTION â€” START */
+/* N1MOX30 ACCESSIBILITY + PREMIUM UI CORRECTION Ã¢â‚¬” START */
 :root {
   --nm-bg: #f4efe7;
   --nm-bg-soft: #ebe4d9;
@@ -6942,7 +6942,7 @@ html[data-theme="dark"] [class*="bg-white"] {
   .n1mox-voice-popover { width: min(250px, calc(100vw - 92px)); }
 }
 
-/* N1MOX30 ACCESSIBILITY + PREMIUM UI CORRECTION â€” END */
+/* N1MOX30 ACCESSIBILITY + PREMIUM UI CORRECTION Ã¢â‚¬” END */
 
 /* N1MOX30 FINAL UI CONTRAST + NOIR REPAIR */
 :root {
@@ -7414,5 +7414,210 @@ h1,h2,h3,h4,h5,h6 { color: var(--nm-text); }
 @media (max-width: 800px) {
   .n1mox-public-contact {
     grid-template-columns: 1fr;
+  }
+}
+/* N1MOX30 FINAL LAUNCH UI REPAIR */
+:root {
+  --nm-bg: #f3eee5;
+  --nm-bg-soft: #ebe4d8;
+  --nm-surface: #fffaf2;
+  --nm-surface-solid: #fffaf2;
+  --nm-surface-raised: #ffffff;
+  --nm-text: #171714;
+  --nm-text-2: #514d45;
+  --nm-text-3: #716a5f;
+  --nm-border: #d8d0c3;
+  --nm-border-strong: #b9afa0;
+  --nm-primary: #171714;
+  --nm-primary-text: #fffaf2;
+}
+
+html[data-n1mox-theme="dark"],
+html[data-theme="dark"],
+body.dark {
+  --nm-bg: #090909;
+  --nm-bg-soft: #11110f;
+  --nm-surface: #151513;
+  --nm-surface-solid: #151513;
+  --nm-surface-raised: #1d1c19;
+  --nm-text: #f3eee5;
+  --nm-text-2: #c9c1b5;
+  --nm-text-3: #a39b90;
+  --nm-border: #302e29;
+  --nm-border-strong: #454139;
+  --nm-primary: #f3eee5;
+  --nm-primary-text: #11110f;
+  color-scheme: dark;
+}
+
+body,
+#root {
+  background: var(--nm-bg) !important;
+  color: var(--nm-text) !important;
+}
+
+.n1-header {
+  background: var(--nm-surface-solid) !important;
+  color: var(--nm-text) !important;
+  border-bottom: 1px solid var(--nm-border) !important;
+}
+
+.n1-header input {
+  color: var(--nm-text) !important;
+  background: var(--nm-surface) !important;
+  border-color: var(--nm-border-strong) !important;
+}
+
+.n1-header input::placeholder {
+  color: var(--nm-text-3) !important;
+}
+
+.n1-header-voice {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.n1-header-voice .n1mox-voice-control {
+  position: static !important;
+  width: auto !important;
+  min-width: 190px;
+  max-width: 300px;
+  padding: 4px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.n1-header-voice .n1mox-voice-status,
+.n1-header-voice .n1mox-voice-command {
+  display: none !important;
+}
+
+.n1-header-voice .n1mox-voice-actions {
+  display: flex !important;
+  margin: 0 !important;
+  gap: 6px !important;
+}
+
+.n1-header-voice .n1mox-voice-button,
+.n1-header-voice .n1mox-voice-wake {
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+}
+
+.n1-header-voice .n1mox-voice-button {
+  background: var(--nm-primary) !important;
+  color: var(--nm-primary-text) !important;
+  border-color: var(--nm-primary) !important;
+}
+
+.n1-header-voice .n1mox-voice-wake {
+  background: transparent !important;
+  color: var(--nm-text) !important;
+  border-color: var(--nm-border-strong) !important;
+}
+
+.n1-header-action,
+.n1-theme-option,
+.n1-header-user-button {
+  color: var(--nm-text) !important;
+  border-color: var(--nm-border) !important;
+}
+
+.n1-theme-option.active,
+.n1-create-button {
+  background: var(--nm-primary) !important;
+  color: var(--nm-primary-text) !important;
+}
+
+.page-content,
+.page-header,
+.page-header h1,
+.page-content h1,
+.page-content h2,
+.page-content h3 {
+  color: var(--nm-text) !important;
+}
+
+.page-content p,
+.page-content label,
+.page-content small,
+.page-content li,
+.muted,
+.subtitle,
+.description {
+  color: var(--nm-text-2) !important;
+}
+
+.panel,
+.card,
+[class*="card"],
+[class*="Card"],
+[class*="panel"],
+[class*="Panel"] {
+  color: var(--nm-text);
+  border-color: var(--nm-border) !important;
+}
+
+html:not([data-theme="dark"]) .text-white,
+html:not([data-theme="dark"]) [class*="text-white"] {
+  color: var(--nm-text) !important;
+}
+
+html:not([data-theme="dark"]) [class*="text-slate-"],
+html:not([data-theme="dark"]) [class*="text-gray-"] {
+  color: var(--nm-text-2) !important;
+}
+
+html:not([data-theme="dark"]) [class*="bg-blue-"],
+html:not([data-theme="dark"]) [class*="bg-indigo-"],
+html:not([data-theme="dark"]) [class*="bg-violet-"],
+html:not([data-theme="dark"]) [class*="bg-purple-"] {
+  background: var(--nm-surface) !important;
+  color: var(--nm-text) !important;
+}
+
+.n1mox-public-site {
+  min-height: 100vh;
+  background: #f3eee5 !important;
+  color: #171714 !important;
+}
+
+.n1mox-public-site h1,
+.n1mox-public-site h2,
+.n1mox-public-site h3,
+.n1mox-public-site p,
+.n1mox-public-site a,
+.n1mox-public-site li {
+  opacity: 1 !important;
+}
+
+@media (max-width: 1100px) {
+  .n1-header-voice .n1mox-voice-wake {
+    display: none !important;
+  }
+  .n1-header-voice .n1mox-voice-control {
+    min-width: 130px;
+  }
+}
+
+@media (max-width: 760px) {
+  .n1-header-voice .n1mox-voice-control {
+    min-width: 42px !important;
+  }
+  .n1-header-voice .n1mox-voice-button {
+    width: 42px;
+    padding: 0 !important;
+    font-size: 0 !important;
+  }
+  .n1-header-voice .n1mox-voice-button::after {
+    content: "Voice";
+    font-size: 11px;
   }
 }
