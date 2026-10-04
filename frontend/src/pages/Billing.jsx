@@ -67,6 +67,7 @@ function normalizePlan(plan) {
 
   return {
     ...source,
+    monthly_inr: source.amount_inr ?? source.monthly_inr ?? 0,
     id: source.id || source.plan_id || source.slug,
     name: source.name || fallback?.name || source.id || "Plan",
     monthly_usd:
@@ -99,7 +100,7 @@ function normalizePlan(plan) {
 function usd(value) {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: "INR",
     maximumFractionDigits: 0,
   }).format(Number(value || 0));
 }
@@ -163,7 +164,7 @@ export default function Billing() {
         plan_id: plan.id,
         billing_cycle: yearly ? "yearly" : "monthly",
         coupon_code: coupon.trim() || undefined,
-        currency: "USD",
+        currency: "INR",
       });
 
       const data = response?.data || {};
@@ -221,12 +222,12 @@ export default function Billing() {
               "/billing/verify",
               {
                 plan_id: plan.id,
-                order_id:
+                razorpay_order_id:
                   paymentResponse.razorpay_order_id ||
                   orderId,
-                payment_id:
+                razorpay_payment_id:
                   paymentResponse.razorpay_payment_id,
-                signature:
+                razorpay_signature:
                   paymentResponse.razorpay_signature,
               }
             );
@@ -301,7 +302,7 @@ export default function Billing() {
         <header className="nm-billing-header">
           <div>
             <span className="nm-commercial-eyebrow">
-              N1MOX30 · COMMERCE
+              N1MOX30 Â· COMMERCE
             </span>
 
             <h1>Plans & billing.</h1>
@@ -323,19 +324,7 @@ export default function Billing() {
         <section className="nm-billing-toolbar">
 
           <div className="nm-billing-toggle">
-            <button
-              className={!yearly ? "active" : ""}
-              onClick={() => setYearly(false)}
-            >
-              Monthly
-            </button>
-
-            <button
-              className={yearly ? "active" : ""}
-              onClick={() => setYearly(true)}
-            >
-              Yearly
-            </button>
+            <button className="active" type="button">Monthly</button>
           </div>
 
           <div className="nm-billing-base">
@@ -363,9 +352,7 @@ export default function Billing() {
           {plans.map((rawPlan) => {
             const plan = normalizePlan(rawPlan);
 
-            const price = yearly
-              ? plan.yearly_usd
-              : plan.monthly_usd;
+            const price = plan.monthly_inr || plan.monthly_usd;
 
             const loading = loadingPlan === plan.id;
 
@@ -389,9 +376,9 @@ export default function Billing() {
                 <h2>{plan.name}</h2>
 
                 <div className="nm-billing-price">
-                  {usd(price)}
+                  {inr(price)}
                   <small>
-                    {yearly ? "/year" : "/month"}
+                    "/month"
                   </small>
                 </div>
 
@@ -401,7 +388,7 @@ export default function Billing() {
                   <p>{plan.monthly_messages} messages / month</p>
                   <p>{plan.monthly_email} Gmail / Email actions / month</p>
                   <p>{plan.monthly_outlook} Outlook actions / month</p>
-                  <p>{plan.youtube_min_minutes}–{plan.youtube_target_minutes}+ minute YouTube videos</p>
+                  <p>{plan.youtube_min_minutes}â€“{plan.youtube_target_minutes}+ minute YouTube videos</p>
                 </div>
 
                 <button

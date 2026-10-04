@@ -9,8 +9,14 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from app.api.dependencies import get_current_user
+from app.core.database import get_db
+from app.models.user import User
+from app.services.batch11.billing_service import activate_subscription
 
 router = APIRouter(prefix="/billing", tags=["billing"])
 
@@ -67,7 +73,7 @@ PLANS: dict[str, dict[str, Any]] = {
 
 class CheckoutRequest(BaseModel):
     plan_id: str = Field(min_length=1, max_length=50)
-    user_id: str = Field(min_length=1, max_length=200)
+    user_id: str | None = None
 
 
 class CheckoutResponse(BaseModel):
@@ -79,6 +85,7 @@ class CheckoutResponse(BaseModel):
     currency: str
     status: str
     test_mode: bool
+    key_id: str | None = None
 
 
 def _db_path() -> Path:
@@ -325,7 +332,11 @@ def overview() -> dict[str, Any]:
 
 
 @router.post("/checkout", response_model=CheckoutResponse)
-def checkout(payload: CheckoutRequest) -> CheckoutResponse:
+def checkout(
+    payload: CheckoutRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CheckoutResponse:
     plan = PLANS.get(payload.plan_id.lower())
 
     if not plan:
@@ -341,7 +352,7 @@ def checkout(payload: CheckoutRequest) -> CheckoutResponse:
         order_id = f"order_test_{uuid.uuid4().hex}"
 
         _record_payment(
-            user_id=payload.user_id,
+            user_id=str(current_user.id),
             plan_id=plan["id"],
             provider="razorpay",
             provider_order_id=order_id,
@@ -358,12 +369,13 @@ def checkout(payload: CheckoutRequest) -> CheckoutResponse:
             currency="INR",
             status="test_created",
             test_mode=True,
+            key_id=os.getenv("RAZORPAY_KEY_ID"),
         )
 
     order = _create_razorpay_order(
         amount_minor=amount_minor,
         plan_id=plan["id"],
-        user_id=payload.user_id,
+        user_id=str(current_user.id),
     )
 
     order_id = str(order.get("id", ""))
@@ -375,7 +387,7 @@ def checkout(payload: CheckoutRequest) -> CheckoutResponse:
         )
 
     _record_payment(
-        user_id=payload.user_id,
+        user_id=str(current_user.id),
         plan_id=plan["id"],
         provider="razorpay",
         provider_order_id=order_id,
@@ -398,26 +410,21 @@ def checkout(payload: CheckoutRequest) -> CheckoutResponse:
 @router.post("/verify")
 async def verify_payment(
     request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     body = await request.json()
 
-    order_id = str(body.get("razorpay_order_id", ""))
-    payment_id = str(body.get("razorpay_payment_id", ""))
-    signature = str(body.get("razorpay_signature", ""))
+    order_id = str(body.get("razorpay_order_id") or body.get("order_id") or "")
+    payment_id = str(body.get("razorpay_payment_id") or body.get("payment_id") or "")
+    signature = str(body.get("razorpay_signature") or body.get("signature") or "")
 
     if not order_id or not payment_id or not signature:
-        raise HTTPException(
-            status_code=400,
-            detail="Incomplete Razorpay verification payload.",
-        )
+        raise HTTPException(status_code=400, detail="Incomplete Razorpay verification payload.")
 
     secret = os.getenv("RAZORPAY_KEY_SECRET", "")
-
     if not secret:
-        raise HTTPException(
-            status_code=503,
-            detail="Razorpay verification secret is not configured.",
-        )
+        raise HTTPException(status_code=503, detail="Razorpay verification secret is not configured.")
 
     if not verify_razorpay_signature(
         order_id=order_id,
@@ -425,14 +432,32 @@ async def verify_payment(
         signature=signature,
         secret=secret,
     ):
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid Razorpay payment signature.",
-        )
+        raise HTTPException(status_code=400, detail="Invalid Razorpay payment signature.")
 
     _payment_table()
 
     with sqlite3.connect(_db_path()) as conn:
+        row = conn.execute(
+            """
+            SELECT user_id, plan_id
+            FROM payment_transactions
+            WHERE provider_order_id = ?
+            LIMIT 1
+            """,
+            (order_id,),
+        ).fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Payment order was not found.")
+
+        transaction_user_id, plan_id = row
+
+        if str(transaction_user_id) != str(current_user.id):
+            raise HTTPException(
+                status_code=403,
+                detail="Payment order does not belong to the authenticated account.",
+            )
+
         conn.execute(
             """
             UPDATE payment_transactions
@@ -442,13 +467,17 @@ async def verify_payment(
                 updated_at = ?
             WHERE provider_order_id = ?
             """,
-            (
-                payment_id,
-                time.time(),
-                order_id,
-            ),
+            (payment_id, time.time(), order_id),
         )
         conn.commit()
+
+    subscription = activate_subscription(
+        db,
+        str(current_user.id),
+        str(plan_id),
+        provider="razorpay",
+        provider_subscription_id=None,
+    )
 
     return {
         "verified": True,
@@ -456,8 +485,12 @@ async def verify_payment(
         "provider": "razorpay",
         "order_id": order_id,
         "payment_id": payment_id,
+        "subscription": {
+            "plan": subscription.plan_code,
+            "status": subscription.status,
+            "expires_at": subscription.expires_at,
+        },
     }
-
 
 @router.post("/webhook")
 async def razorpay_webhook(

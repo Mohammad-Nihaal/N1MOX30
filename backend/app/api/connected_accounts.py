@@ -9,12 +9,26 @@ from app.schemas.connected_account import (
     ConnectedAccountCreate,
     ConnectedAccountResponse,
 )
+from app.services.connection_access import (
+    connection_access,
+    require_connection_access,
+)
 
 
 router = APIRouter(
     prefix="/connected-accounts",
     tags=["Connected Accounts"],
 )
+
+
+@router.get(
+    "/access",
+)
+def get_connection_access(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return connection_access(db, current_user)
 
 
 @router.post(
@@ -27,6 +41,11 @@ def create_connected_account(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    access = require_connection_access(
+        db,
+        current_user,
+    )
+
     existing_account = (
         db.query(ConnectedAccount)
         .filter(
@@ -42,6 +61,15 @@ def create_connected_account(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This account is already connected.",
+        )
+
+    if (
+        access["is_owner"]
+        and access["connected_count"] >= 2
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Owner connection allowance is limited to 2 free connected accounts.",
         )
 
     account = ConnectedAccount(

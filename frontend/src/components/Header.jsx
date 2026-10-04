@@ -1,5 +1,6 @@
-﻿import {
+import {
   Bell,
+  LogOut,
   Command,
   Moon,
   PanelLeftClose,
@@ -12,6 +13,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import N1MOXVoiceControl from "./N1MOXVoiceControl";
+import { useAuth } from "../context/AuthContext";
 
 import api from "../api/client";
 
@@ -35,6 +37,7 @@ function getStoredUser() {
 
 function Header({ sidebarOpen, setSidebarOpen }) {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [theme, setTheme] = useState(getInitialTheme);
   const [creatorProfile, setCreatorProfile] = useState(null);
@@ -111,12 +114,12 @@ function Header({ sidebarOpen, setSidebarOpen }) {
     displayName.trim().charAt(0).toUpperCase() || "N";
 
   return (
-    <header className="n1-header">
+    <header className="n1-header" role="banner">
       {/* =====================================================
           LEFT
           ===================================================== */}
 
-      <div className="n1-header-left">
+      <div className="n1-header-left" aria-label="Application navigation">
         <button
           type="button"
           className="n1-sidebar-toggle"
@@ -158,9 +161,7 @@ function Header({ sidebarOpen, setSidebarOpen }) {
           RIGHT ACTIONS
           ===================================================== */}
 
-      <div className="n1-header-voice">
-        <N1MOXVoiceControl />
-      </div>
+      <div className="n1-header-voice"><N1MOXVoiceControl /></div>
       <div className="n1-header-actions">
         {/* =================================================
             THEME
@@ -247,7 +248,7 @@ function Header({ sidebarOpen, setSidebarOpen }) {
         <button
           type="button"
           className="n1-header-user n1-header-user-button"
-          onClick={() => navigate("/app/profile")}
+          onClick={() => navigate("/app/creator-profile")}
           title="Open creator profile"
           aria-label="Open creator profile"
         >
@@ -259,6 +260,19 @@ function Header({ sidebarOpen, setSidebarOpen }) {
             <strong>{displayName}</strong>
             <span>Creator workspace</span>
           </div>
+        </button>
+
+        <button
+          type="button"
+          className="n1-header-action"
+          title="Log out"
+          aria-label="Log out"
+          onClick={() => {
+            logout();
+            navigate("/login", { replace: true });
+          }}
+        >
+          <LogOut size={17} />
         </button>
       </div>
     </header>
